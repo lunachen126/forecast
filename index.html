@@ -1,0 +1,2776 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#c8102e">
+<meta name="format-detection" content="telephone=no">
+<meta name="description" content="2026年深圳社保与个税计算器：输入缴费基数与逐月收入，自动累计全年收入、五险一金、个税与到手金额。">
+<meta property="og:title" content="深圳五险一金与个税计算器（2026年）">
+<meta property="og:description" content="输入缴费基数与每月收入，自动累计全年收入、五险一金、个税与到手金额，支持13薪与奖金。">
+<meta property="og:type" content="website">
+<title>深圳五险一金与个税计算器 · 2026年</title>
+<style>
+  :root{
+    --bg:#f4f6f9;
+    --card:#ffffff;
+    --ink:#141c26;
+    --ink2:#5c6a7a;
+    --ink3:#8d99a8;
+    --line:#e3e8ef;
+    --brand:#c8102e;
+    --brand-soft:#fdeef0;
+    --sz:#c8102e;      /* 深户 */
+    --sz-soft:#fdeef0;
+    --nonsz:#1f6feb;   /* 非深户 */
+    --nonsz-soft:#eaf1fd;
+    --ok:#0f7b52;
+    --ok-soft:#e8f5ef;
+    --warn:#a86300;
+    --warn-soft:#fff6e5;
+    --radius:14px;
+    --mono:"SF Mono",ui-monospace,"Cascadia Code",Consolas,Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:960px;margin:0 auto;padding:26px 16px 70px}
+  .eyebrow{display:inline-block;font-size:12px;letter-spacing:.06em;color:var(--brand);background:var(--brand-soft);padding:4px 11px;border-radius:999px;font-weight:600}
+  h1{font-size:25px;margin:12px 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--ink2);font-size:13.5px;margin:0 0 20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;margin-bottom:16px}
+  .card h2{font-size:15.5px;margin:0 0 14px;display:flex;align-items:center;gap:8px}
+  .card h2 .num{width:21px;height:21px;border-radius:50%;background:var(--ink);color:#fff;font-size:11.5px;display:flex;align-items:center;justify-content:center;flex:none;font-weight:600}
+  label{display:block;font-size:12.5px;font-weight:600;margin:0 0 6px}
+  .hint{font-size:11.5px;color:var(--ink3);font-weight:400;margin:5px 0 0;line-height:1.5}
+  input[type=number],select{
+    width:100%;padding:10px 12px;font-size:14.5px;border:1px solid var(--line);
+    border-radius:9px;background:#fbfcfe;color:var(--ink);font-family:inherit;
+  }
+  input[type=number]:focus,select:focus{outline:none;border-color:var(--brand);background:#fff}
+  .field{margin-bottom:16px}
+  .field:last-child{margin-bottom:0}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:8px}
+  .chip{font-size:11.5px;padding:4px 10px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink2);cursor:pointer;font-family:inherit;transition:.15s}
+  .chip:hover{border-color:var(--brand);color:var(--brand)}
+  .radio-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .opt{position:relative;border:1.5px solid var(--line);border-radius:10px;padding:11px 13px;cursor:pointer;background:#fbfcfe;transition:.15s}
+  .opt:hover{border-color:#c9d0da}
+  .opt.on{border-color:var(--brand);background:var(--brand-soft)}
+  .opt b{display:block;font-size:13.5px;font-weight:600}
+  .opt span{font-size:11.5px;color:var(--ink2)}
+  .switcher{display:flex;gap:9px;margin-bottom:16px;flex-wrap:wrap}
+  .sw{flex:1;min-width:150px;border:1.5px solid var(--line);border-radius:11px;padding:12px 14px;cursor:pointer;background:#fbfcfe;transition:.15s;position:relative}
+  .sw:hover{border-color:#c9d0da}
+  .sw.on{border-color:currentColor;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .sw .nm{font-size:14px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .sw .dot{width:9px;height:9px;border-radius:50%;background:currentColor}
+  .sw .amt{font-size:19px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums}
+  .sw .amt small{font-size:12px;font-weight:500;color:var(--ink2)}
+  .sw .cap{font-size:11.5px;color:var(--ink3)}
+  .sw.s{color:var(--sz)}
+  .sw.n{color:var(--nonsz)}
+  .sw.s.on{background:var(--sz-soft)}
+  .sw.n.on{background:var(--nonsz-soft)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:9px 7px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+  th:first-child,td:first-child{text-align:left;font-variant-numeric:normal}
+  th{color:var(--ink2);font-weight:600;font-size:11.5px;letter-spacing:.02em}
+  tr.sec td{background:#f8fafc;font-weight:700;color:var(--ink);font-size:12.5px;text-align:left}
+  tr.total td{font-weight:700;border-top:1.5px solid var(--ink);border-bottom:none;font-size:13.5px;background:#fff}
+  tr.total.co td{color:var(--brand)}
+  .cc{color:var(--brand)}
+  .pc{color:var(--nonsz)}
+  .tag{display:inline-block;font-size:10.5px;padding:1px 6px;border-radius:5px;font-weight:600;margin-left:4px;vertical-align:1px}
+  .tag.co{background:var(--warn-soft);color:var(--warn)}
+  .tag.me{background:#eef1f5;color:var(--ink2)}
+  .callout{font-size:13px;padding:12px 14px;border-radius:10px;margin-top:14px;line-height:1.6}
+  .callout.ok{background:var(--ok-soft);color:#0b5e3f;border:1px solid #cbe8da}
+  .callout.warn{background:var(--warn-soft);color:#6f4300;border:1px solid #f2ddb8}
+  .callout.info{background:#f2f6fb;color:#2a4258;border:1px solid #dbe6f3}
+  .bar{display:flex;height:26px;border-radius:7px;overflow:hidden;margin:8px 0 4px;border:1px solid var(--line)}
+  .tscroll{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -4px;padding:0 4px}
+  .dedu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}
+  .dchk{display:block;border:1.5px solid var(--line);border-radius:10px;padding:9px 11px;background:#fbfcfe;cursor:pointer;transition:.15s;margin:0}
+  .dchk:hover{border-color:#c9d0da}
+  .dchk input{display:none}
+  .dchk span{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;font-weight:600;color:var(--ink)}
+  .dchk em{font-style:normal;font-size:11px;font-weight:600;color:var(--ink3);background:#eef1f5;padding:1px 6px;border-radius:5px}
+  .dchk input:checked + span{color:var(--brand)}
+  .dchk input:checked + span em{background:var(--brand-soft);color:var(--brand)}
+  .dchk:has(input:checked){border-color:var(--brand);background:var(--brand-soft)}
+  .btn-sm{padding:8px 14px;font-size:12.5px;font-weight:600;color:#fff;background:var(--brand);border:none;border-radius:9px;font-family:inherit;cursor:pointer;transition:.15s}
+  .btn-sm:hover{opacity:.88}
+  .btn-sm.ghost{background:#fff;color:var(--ink2);border:1.5px solid var(--line)}
+  .btn-sm.ghost:hover{border-color:var(--brand);color:var(--brand);opacity:1}
+  #yearTable input{width:100%;min-width:76px;padding:6px 8px;font-size:13px;border:1px solid var(--line);border-radius:7px;background:#fff;font-family:inherit;text-align:right;font-variant-numeric:tabular-nums}
+  #yearTable input:focus{outline:none;border-color:var(--brand)}
+  /* 基数输入框需容纳 5 位数字（如 48471），单独给更大最小宽度，保证一眼看全 */
+  #yearTable input.b-col{min-width:104px;padding:6px 10px}
+  #yearTable th{white-space:nowrap}
+  #yearTable th small{font-weight:400;color:var(--ink3);font-size:9.5px}
+  #yearTable{min-width:1280px}
+  #yearTable td{padding:5px 5px;white-space:nowrap}
+  #yearTable tfoot td{font-weight:700;border-top:1.5px solid var(--ink);font-size:13.5px;background:#fff}
+  .hl-col{background:var(--brand-soft);color:var(--brand);font-weight:600}
+  #yearTable tfoot td.hl-col{background:var(--brand-soft)}
+  #yearTable td.ot-col{background:#fff8ec;color:var(--warn);font-weight:600}
+  #yearTable td.b-col{background:#eef6ff}
+  .mcell .mk.ot{color:var(--warn);background:#fff2e2}
+  .mcell{display:flex;align-items:center;gap:6px;white-space:nowrap}
+  .mcell .mk{font-size:11px;color:var(--brand);background:var(--brand-soft);padding:1px 5px;border-radius:4px;font-weight:600}
+  .bar .seg{display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--ink2);margin-top:6px}
+  .legend i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px}
+  ul{padding-left:19px;margin:7px 0 0}
+  li{margin-bottom:5px;font-size:13px}
+  .kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-top:4px}
+  .kv{background:#fbfcfe;border:1px solid var(--line);border-radius:10px;padding:11px 13px}
+  .kv .k{font-size:11.5px;color:var(--ink3)}
+  .kv .v{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+  .kv .v small{font-size:11.5px;font-weight:500;color:var(--ink2)}
+  footer{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:26px;line-height:1.8}
+  a{color:var(--brand)}
+  @media(max-width:640px){
+    .wrap{padding:18px 12px 56px}
+    .grid2,.grid3,.radio-row,.switcher{grid-template-columns:1fr}
+    .card{padding:15px 14px;border-radius:12px}
+    table{font-size:11.5px}
+    th,td{padding:6px 3px}
+    th{font-size:10px;letter-spacing:0}
+    .sw .amt{font-size:17px}
+    h1{font-size:20px}
+    .sub{font-size:12.5px}
+    .opt b{font-size:13px}
+    input[type=number],select{font-size:16px} /* 防 iOS 聚焦缩放 */
+    .chip{font-size:11px;padding:5px 9px}
+    footer{font-size:11px}
+    .kvs{grid-template-columns:1fr 1fr}
+  }
+  @media(max-width:380px){
+    .kvs{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <span class="eyebrow">深圳 · 2026年现行口径</span>
+    <h1>五险一金 + 个税 · 年度收入计算器</h1>
+    <p class="sub">输入缴费基数与逐月收入，自动计算每月五险一金、个税与到手，并<b>累计全年收入与到手金额</b>。支持 13 薪与奖金。</p>
+  </header>
+
+  <!-- 全局数据操作 -->
+  <div class="card" style="background:linear-gradient(180deg,#fff8f2 0%,#fff 100%);border-color:#f0dcc8;padding:16px 18px">
+    <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+      <button class="btn-sm" id="clearAllBtn" style="background:var(--warn)">🗑 一键清空所有金额</button>
+      <button class="btn-sm ghost" id="restoreAllBtn">↩ 一键恢复（撤销清空）</button>
+      <span class="hint" id="dataHint" style="margin:0;flex:1;min-width:180px">&nbsp;</span>
+    </div>
+    <div class="hint" style="margin:8px 0 0">「一键清空」会把<b>全部 6 个版块的所有金额</b>归 0（下拉选项、利率、年龄等参数保留）；万一误触，可立即点「一键恢复」找回清空前的数据。</div>
+  </div>
+
+  <!-- 输入区 -->
+  <div class="card">
+    <h2><span class="num">1</span>输入缴费基数与身份</h2>
+    <div class="grid2">
+      <div class="field">
+        <label for="base">社保缴费基数（元/月，本人上月工资总额）</label>
+        <input type="number" id="base" value="10000" min="0" step="100" inputmode="numeric">
+        <div class="hint">养老基数范围 4775–27549；医疗/生育基数范围 6727–33633；失业基数范围 2520–44265。超限自动按上下限截取。</div>
+        <div class="chips">
+          <button class="chip" data-b="6727">6727（医保下限）</button>
+          <button class="chip" data-b="10000">10000</button>
+          <button class="chip" data-b="15000">15000</button>
+          <button class="chip" data-b="27549">27549（养老上限）</button>
+          <button class="chip" data-b="33633">33633（医保上限）</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>本人户籍身份</label>
+        <div class="radio-row" id="ident">
+          <div class="opt on" data-i="s"><b>深户</b><span>深圳户籍 · 强制一档</span></div>
+          <div class="opt" data-i="n"><b>非深户</b><span>非深圳户籍 · 可一档/二档</span></div>
+        </div>
+        <div class="hint">身份决定可选医保档次：<b>深户只能一档</b>；非深户可选一档或二档（由单位申报决定）。</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="tier">医保档次</label>
+      <select id="tier"></select>
+      <div class="hint" id="tierHint"></div>
+    </div>
+
+    <div class="grid3" style="margin-top:4px">
+      <div class="field">
+        <label for="inj">工伤保险基准费率（单位承担，按行业分档）</label>
+        <select id="inj">
+          <option value="0.002">0.2% · 一类（金融/软件/商务服务等）</option>
+          <option value="0.004">0.4% · 二类</option>
+          <option value="0.006">0.6% · 三类</option>
+          <option value="0.008">0.8% · 四类</option>
+          <option value="0.009">0.9% · 五类</option>
+          <option value="0.010">1.0% · 六类</option>
+          <option value="0.012">1.2% · 七类</option>
+          <option value="0.014">1.4% · 八类（建筑/采矿等高危）</option>
+        </select>
+        <div class="hint">各行业实行差别费率，具体档次以公司社保申报为准，可咨询 HR。</div>
+      </div>
+      <div class="field">
+        <label for="hfco">公积金 · 单位缴存比例</label>
+        <select id="hfco">
+          <option value="0.05">5%</option>
+          <option value="0.06">6%</option>
+          <option value="0.07">7%</option>
+          <option value="0.08">8%</option>
+          <option value="0.09">9%</option>
+          <option value="0.10">10%</option>
+          <option value="0.11">11%</option>
+          <option value="0.12" selected>12%</option>
+        </select>
+        <div class="hint">单位比例 5%–12%。</div>
+      </div>
+      <div class="field">
+        <label for="hfme">公积金 · 个人缴存比例</label>
+        <select id="hfme">
+          <option value="0.05">5%</option>
+          <option value="0.06">6%</option>
+          <option value="0.07">7%</option>
+          <option value="0.08">8%</option>
+          <option value="0.09">9%</option>
+          <option value="0.10">10%</option>
+          <option value="0.11">11%</option>
+          <option value="0.12" selected>12%</option>
+        </select>
+        <div class="hint">个人比例 5%–12%，<b>可与单位比例不同</b>。</div>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="hfbase">公积金缴存基数（元/月）</label>
+      <input type="number" id="hfbase" value="10000" min="0" step="100" inputmode="numeric">
+      <div class="chips">
+        <button class="chip" id="hfSame">同社保基数</button>
+      </div>
+      <div class="hint">可与社保基数不同。深圳公积金基数上限按上年度全市职工月平均工资的 3 倍核定，下限为最低工资标准。</div>
+    </div>
+  </div>
+
+  <!-- 个税输入 -->
+  <div class="card">
+    <h2><span class="num">2</span>专项附加扣除（影响个税）</h2>
+
+    <div class="field">
+      <label>专项附加扣除（每月，可多选）</label>
+      <div class="dedu-grid" id="deductions">
+        <label class="dchk"><input type="checkbox" data-d="2000" value="子女教育"><span>子女教育<em>2000</em></span></label>
+        <label class="dchk"><input type="checkbox" data-d="2000" value="3岁以下婴幼儿照护"><span>3岁以下婴幼儿照护<em>2000</em></span></label>
+        <label class="dchk"><input type="checkbox" data-d="3000" value="赡养老人"><span>赡养老人(独生)<em>3000</em></span></label>
+        <label class="dchk"><input type="checkbox" data-d="1000" value="住房贷款利息"><span>住房贷款利息<em>1000</em></span></label>
+        <label class="dchk"><input type="checkbox" data-d="1500" value="住房租金"><span>住房租金<em>1500</em></span></label>
+        <label class="dchk"><input type="checkbox" data-d="400" value="继续教育"><span>继续教育<em>400</em></span></label>
+      </div>
+      <div class="hint" id="deduNote">勾选后自动累加。赡养老人非独生按分摊额算；住房租金深圳标准 1500 元/月；此处展示值为常见标准，可在下方手动修正总额。</div>
+      <div style="margin-top:9px">
+        <label for="deduManual" style="font-size:12px">专项附加扣除合计（元/月，可直接填写覆盖）</label>
+        <input type="number" id="deduManual" min="0" step="100" placeholder="留空则按上方勾选自动计算" inputmode="numeric">
+      </div>
+    </div>
+  </div>
+
+  <!-- 一年累计收入记录 -->
+  <div class="card" style="background:linear-gradient(180deg,#f6fbf8 0%,#fff 100%);border-color:#cfe8dc">
+    <h2><span class="num">3</span>一年累计收入记录（自动保存）</h2>
+    <div class="hint" style="margin:-6px 0 12px">
+      逐月记录税前收入与加班。若年内<b>缴费基数有变化</b>（如每年 7 月社平工资调整、年中涨薪或换工作），
+      可在表格「<b>社保基数</b>」「<b>公积金基数</b>」列按月份单独填写，两列各自独立计算（深圳社保与公积金是两套上下限）。
+    </div>
+
+    <div class="grid3" id="yearToolbarWrap">
+      <div class="field" style="margin-bottom:0">
+        <label for="fillSalary">用月薪填充全部 12 个月（元/月）</label>
+        <input type="number" id="fillSalary" value="15000" min="0" step="100" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="bonus">全年奖金（单独输入，元）</label>
+        <input type="number" id="bonus" value="0" min="0" step="1000" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="bonusMonth">奖金发放月份</label>
+        <select id="bonusMonth">
+          <option value="1">1 月</option><option value="2">2 月</option><option value="3">3 月</option>
+          <option value="4">4 月</option><option value="5">5 月</option><option value="6">6 月</option>
+          <option value="7">7 月</option><option value="8">8 月</option><option value="9">9 月</option>
+          <option value="10">10 月</option><option value="11">11 月</option><option value="12" selected>12 月</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="bonusTaxMode">奖金计税方式</label>
+        <select id="bonusTaxMode">
+          <option value="combined" selected>并入综合所得（累计预扣）</option>
+          <option value="separate">单独计税（全年一次性奖金优惠）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="overtime">快捷填入加班金额（元）</label>
+        <input type="number" id="overtime" value="0" min="0" step="100" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="overtimeMonth">填入到哪个月</label>
+        <select id="overtimeMonth">
+          <option value="1">1 月</option><option value="2">2 月</option><option value="3">3 月</option>
+          <option value="4">4 月</option><option value="5">5 月</option><option value="6">6 月</option>
+          <option value="7">7 月</option><option value="8">8 月</option><option value="9">9 月</option>
+          <option value="10">10 月</option><option value="11">11 月</option><option value="12">12 月</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>&nbsp;</label>
+        <button class="btn-sm ghost" id="overtimeApply" style="width:100%;margin-top:6px">填入该月</button>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>&nbsp;</label>
+        <div class="hint" style="margin:0;padding-top:10px">填入后写入下方表格该月；多个月有加班可在表格"加班金额"列逐月填。</div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="thirteenth">是否发放 13 薪</label>
+        <select id="thirteenth">
+          <option value="yes" selected>是（12 月按 13 薪计算，多发 1 个月薪资）</option>
+          <option value="no">否（12 月按正常薪资计算）</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>&nbsp;</label>
+        <div class="hint" style="margin:0;padding-top:10px">选「是」：12 月应税收入 = 该月税前收入 × 2（含多发 1 个月）。</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:9px;flex-wrap:wrap;margin:14px 0 12px">
+      <button class="btn-sm" id="fillBtn">用月薪填充 12 个月</button>
+      <button class="btn-sm ghost" id="clearBtn">清空本版块数据</button>
+    </div>
+
+    <div class="tscroll">
+    <table id="yearTable">
+      <thead>
+        <tr>
+          <th>月份</th>
+          <th>税前收入</th>
+          <th>社保基数<br><small>可逐月改</small></th>
+          <th>公积金基数<br><small>可逐月改</small></th>
+          <th>加班金额</th>
+          <th>五险一金<br>(个人)</th>
+          <th>当月个税</th>
+          <th>当月到手</th>
+          <th>当月公积金<br><small>个人+单位</small></th>
+          <th>当月实际可支配<br><small>到手+公积金</small></th>
+          <th>累计可支配收入</th>
+          <th>累计收入</th>
+          <th>累计公积金<br><small>个人+单位</small></th>
+        </tr>
+      </thead>
+      <tbody id="yearBody"></tbody>
+      <tfoot id="yearFoot"></tfoot>
+    </table>
+    </div>
+
+    <div class="grid3" id="yearSummary" style="margin-top:14px"></div>
+    <div class="callout info" id="taxNote"></div>
+  </div>
+
+  <!-- 独立试算器 -->
+  <div class="card" style="background:linear-gradient(180deg,#f7f9fc 0%,#fff 100%);border-color:#d8e2f0">
+    <h2><span class="num">4</span>快速试算 · 输入金额算五险一金与到手</h2>
+    <div class="hint" style="margin:-6px 0 12px">独立试算，不影响上方年度记录。输入各项金额，立即得到五险一金与到手金额。</div>
+
+    <div class="grid3">
+      <div class="field" style="margin-bottom:0">
+        <label for="cBase">社保计税基数（元/月）</label>
+        <input type="number" id="cBase" value="10000" min="0" step="100" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="cHfBase">公积金基数（元/月）</label>
+        <input type="number" id="cHfBase" value="10000" min="0" step="100" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="cSalary">税前金额（元/月）</label>
+        <input type="number" id="cSalary" value="15000" min="0" step="100" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="cOvertime">加班工资（元/月，可选）</label>
+        <input type="number" id="cOvertime" value="0" min="0" step="100" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="cHfCo">公积金 · 单位比例</label>
+        <select id="cHfCo">
+          <option value="0.05">5%</option><option value="0.06">6%</option><option value="0.07">7%</option>
+          <option value="0.08">8%</option><option value="0.09">9%</option><option value="0.10">10%</option>
+          <option value="0.11">11%</option><option value="0.12" selected>12%</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="cHfMe">公积金 · 个人比例</label>
+        <select id="cHfMe">
+          <option value="0.05">5%</option><option value="0.06">6%</option><option value="0.07">7%</option>
+          <option value="0.08">8%</option><option value="0.09">9%</option><option value="0.10">10%</option>
+          <option value="0.11">11%</option><option value="0.12" selected>12%</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="cMonth">查看哪个月到手（个税累计月）</label>
+        <select id="cMonth">
+          <option value="1">第 1 个月</option><option value="2">第 2 个月</option><option value="3">第 3 个月</option>
+          <option value="4">第 4 个月</option><option value="5">第 5 个月</option><option value="6">第 6 个月</option>
+          <option value="7">第 7 个月</option><option value="8">第 8 个月</option><option value="9">第 9 个月</option>
+          <option value="10">第 10 个月</option><option value="11">第 11 个月</option><option value="12" selected>第 12 个月</option>
+        </select>
+        <div class="hint" style="margin-top:6px">个税按全年累计，越往后税率档位越高，到手逐月递减；默认第 12 个月，即对齐全年的口径。</div>
+      </div>
+    </div>
+
+    <div class="grid2" style="margin-top:16px">
+      <div class="kv" style="border-color:var(--warn);background:#fff">
+        <div class="k" style="color:var(--warn);font-weight:700">五险一金 · 单位缴纳</div>
+        <div class="v" id="c-co" style="color:var(--warn)">—<small> 元/月</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--nonsz);background:#fff">
+        <div class="k" style="color:var(--nonsz);font-weight:700">五险一金 · 个人缴纳</div>
+        <div class="v" id="c-me" style="color:var(--nonsz)">—<small> 元/月</small></div>
+      </div>
+    </div>
+
+    <div class="tscroll" style="margin-top:14px">
+    <table>
+      <thead>
+        <tr>
+          <th>项目</th>
+          <th>基数(元)</th>
+          <th>费率(单位/个人)</th>
+          <th>单位缴纳</th>
+          <th>个人缴纳</th>
+        </tr>
+      </thead>
+      <tbody id="cBody"></tbody>
+    </table>
+    </div>
+
+    <div class="callout ok" id="cNet" style="margin-top:14px"></div>
+  </div>
+
+  <!-- 公积金贷款测算 -->
+  <div class="card" style="background:linear-gradient(180deg,#f5f8ff 0%,#fff 100%);border-color:#d6e0f5">
+    <h2><span class="num">5</span>公积金贷款测算（深圳 2026 新政）</h2>
+    <div class="hint" style="margin:-6px 0 12px">按深圳现行公积金贷款政策测算：可贷额度 = 账户余额 × 16 倍（可上浮），并校验年龄、还款能力等约束。实际以公积金中心柜台审核为准。</div>
+
+    <div class="grid3">
+      <div class="field" style="margin-bottom:0">
+        <label for="lPrice">房屋总价（元）</label>
+        <input type="number" id="lPrice" value="4000000" min="0" step="10000" inputmode="numeric">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lType">房屋性质</label>
+        <select id="lType">
+          <option value="commercial" selected>商品住房（首付 ≥ 20%）</option>
+          <option value="affordable">保障性住房（首付 ≥ 15%）</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lOrder">购房套数</label>
+        <select id="lOrder">
+          <option value="first" selected>首套住房</option>
+          <option value="second">第二套住房</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="lDown">首付比例</label>
+        <select id="lDown">
+          <option value="0.15">15%（保障房最低）</option>
+          <option value="0.20" selected>20%（商品住房最低）</option>
+          <option value="0.30">30%</option>
+          <option value="0.40">40%</option>
+          <option value="0.50">50%</option>
+          <option value="custom">自定义（按金额反算）</option>
+        </select>
+        <div class="hint" style="margin-top:6px">改比例 → 自动带出金额；改金额 → 自动反算比例</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lDownAmt">首付金额（元） <small style="color:var(--ink3)">可改，自动反算比例</small></label>
+        <input type="number" id="lDownAmt" value="800000" min="0" step="10000" inputmode="numeric">
+        <div class="hint" id="lDownAmtHint" style="margin-top:6px">&nbsp;</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lLimit">贷款主体</label>
+        <select id="lLimit">
+          <option value="single" selected>单独申请（基础 70 万）</option>
+          <option value="family">共同申请（基础 130 万）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="lYears">贷款年限</label>
+        <select id="lYears">
+          <option value="5">5 年</option><option value="10">10 年</option>
+          <option value="15">15 年</option><option value="20">20 年</option>
+          <option value="25">25 年</option><option value="30" selected>30 年</option>
+        </select>
+      </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="lAccount">公积金账户余额（元）</label>
+        <input type="number" id="lAccount" value="50000" min="0" step="1000" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">可贷额度 = 余额 × 16 倍</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lIncap">家庭月缴存基数（元）</label>
+        <input type="number" id="lIncap" value="15000" min="0" step="1000" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">用于还款能力校验（月供 ≤ 50%）</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lPrepay">提前还款（元，可选）</label>
+        <input type="number" id="lPrepay" value="0" min="0" step="10000" inputmode="numeric">
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="lUp">额度上浮情形（可累加，最高 +170%）</label>
+        <select id="lUp">
+          <option value="0">不上浮</option>
+          <option value="0.6">首套住房 +60%</option>
+          <option value="0.5">初婚初育 +50%</option>
+          <option value="0.7">两个及以上子女 +70%</option>
+          <option value="0.4">保障性住房 +40%</option>
+          <option value="1.2">首套 + 两孩（+60%+70% 累加）</option>
+          <option value="1.7">多项累加（最高 +170%）</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lAge">申请人年龄（岁）</label>
+        <input type="number" id="lAge" value="30" min="18" max="70" step="1" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">年龄 + 期限 ≤ 70 岁</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lBizRate">商业贷款年利率（%）</label>
+        <input type="number" id="lBizRate" value="3.0" min="0" step="0.05" inputmode="decimal">
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="lRate">公积金贷款利率（%）</label>
+        <input type="number" id="lRate" value="2.6" min="0" step="0.005" inputmode="decimal">
+        <div class="hint" style="margin-top:6px">首套 5年以上 2.6% / 二套 3.075%</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="lRepay">还款方式</label>
+        <select id="lRepay">
+          <option value="equal" selected>等额本息</option>
+          <option value="principal">等额本金</option>
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>&nbsp;</label>
+        <button class="btn-sm ghost" id="lRateAuto" style="width:100%;margin-top:6px">按首套/二套自动填利率</button>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:16px">
+      <div class="kv" style="border-color:var(--brand);background:#fff">
+        <div class="k" style="color:var(--brand);font-weight:700">首付金额</div>
+        <div class="v" id="l-down" style="color:var(--brand)">—<small> 元</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--brand);background:#fff">
+        <div class="k" style="color:var(--brand);font-weight:700">实际可贷本金</div>
+        <div class="v" id="l-principal" style="color:var(--brand)">—<small> 元</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--warn);background:#fff">
+        <div class="k" style="color:var(--warn);font-weight:700">首月月供</div>
+        <div class="v" id="l-month" style="color:var(--warn)">—<small> 元</small></div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="kv" style="border-color:var(--nonsz);background:#fff">
+        <div class="k" style="color:var(--nonsz);font-weight:700">支付总利息</div>
+        <div class="v" id="l-interest" style="color:var(--nonsz)">—<small> 元</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--ink3);background:#fff">
+        <div class="k" style="color:var(--ink2);font-weight:700">购房合计支出</div>
+        <div class="v" id="l-total-out" style="color:var(--ink)">—<small> 元</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--ink3);background:#fff">
+        <div class="k" style="color:var(--ink2);font-weight:700">首付后现金支出下限</div>
+        <div class="v" id="l-cash" style="color:var(--ink)">—<small> 元</small></div>
+      </div>
+    </div>
+
+    <div class="callout warn" id="lGap" style="margin-top:14px;display:none"></div>
+
+    <div class="tscroll" style="margin-top:14px">
+    <table>
+      <thead>
+        <tr>
+          <th>可贷额度约束</th>
+          <th>计算</th>
+          <th>金额（元）</th>
+        </tr>
+      </thead>
+      <tbody id="lBody"></tbody>
+    </table>
+    </div>
+
+    <div class="callout info" id="lNote" style="margin-top:14px"></div>
+  </div>
+
+  <!-- 退休金测算 -->
+  <div class="card" style="background:linear-gradient(180deg,#f6fbf8 0%,#fff 100%);border-color:#cfe8dc">
+    <h2><span class="num">6</span>退休金测算（深圳企业职工基本养老金）</h2>
+    <div class="hint" style="margin:-6px 0 12px">按深圳 2026 年计发基数口径测算：基础养老金 + 个人账户养老金 + 过渡性养老金 + 地方补助（深户）。实际以社保机构核定为准。</div>
+
+    <!-- 人员类型与退休年龄自动推算 -->
+    <div class="grid3">
+      <div class="field" style="margin-bottom:0">
+        <label for="rPersonType">人员类型</label>
+        <select id="rPersonType">
+          <option value="male" selected>男职工（原 60 岁 → 63 岁）</option>
+          <option value="cadre">女职工·管理/技术岗（原 55 岁 → 58 岁）</option>
+          <option value="worker">女职工·生产/操作岗（原 50 岁 → 55 岁）</option>
+        </select>
+        <div class="hint" style="margin-top:6px">按 2025 年起渐进式延迟退休口径</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rWorkYM">参加工作时间（年月）</label>
+        <input type="month" id="rWorkYM" value="2016-07" min="1950-01" max="2030-12">
+        <div class="hint" style="margin-top:6px">精确到月，用于推算已缴年限与退休年月</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rBirthYM">出生年月</label>
+        <input type="month" id="rBirthYM" value="1996-07" min="1940-01" max="2010-12">
+        <div class="hint" style="margin-top:6px">延迟月数按出生年月精确到月</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rAge">今年年龄（岁）</label>
+        <input type="number" id="rAge" value="30" min="16" max="70" step="1" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">与出生年月联动</div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="rRetireAge">预计退休年龄</label>
+        <select id="rRetireAge">
+          <option value="50">50 岁</option><option value="55">55 岁</option>
+          <option value="58">58 岁</option><option value="60" selected>60 岁</option>
+          <option value="63">63 岁</option>
+        </select>
+        <div class="hint" style="margin-top:6px">点下方按钮自动推算</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rPaidYears">已缴费年限（年） <small style="color:var(--ink3)">精确到 0.1</small></label>
+        <input type="number" id="rPaidYears" value="5" min="0" step="0.1" inputmode="decimal">
+        <div class="hint" id="rPaidHint" style="margin-top:6px">&nbsp;</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rRetireYMView">预计退休年月</label>
+        <input type="text" id="rRetireYMView" value="" readonly style="background:#f5f7f6;color:var(--brand);font-weight:700">
+        <div class="hint" style="margin-top:6px">由出生年月 + 法定退休年龄推算</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:12px;margin-bottom:0">
+      <button class="btn-sm" id="rAutoBtn" style="width:100%;max-width:360px">按人员类型 + 出生年月 + 参加工作年月 自动推算退休年龄与已缴年限</button>
+      <div class="hint" id="rAutoHint" style="margin-top:8px">&nbsp;</div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="rSalary">当前月缴费工资（元）</label>
+        <input type="number" id="rSalary" value="10000" min="0" step="100" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">低于下限 4775 元按下限缴</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rAvgIndex">平均缴费指数 <small style="color:var(--ink3)">(0.6–3.0)</small></label>
+        <input type="number" id="rAvgIndex" value="0.77" min="0.6" max="3" step="0.01" inputmode="decimal">
+        <div class="hint" id="rAvgIndexHint" style="margin-top:6px">&nbsp;</div>
+        <button class="btn-sm ghost" id="rAvgIndexAuto" style="width:100%;margin-top:6px">按当前工资自动预估</button>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rBase">退休时深圳计发基数（元）</label>
+        <input type="number" id="rBase" value="11293" min="0" step="100" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">2026 年深圳口径 11293 元</div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="rSocAvg">退休时社平工资（元/月） <small style="color:var(--ink3)">预估指引用</small></label>
+        <input type="number" id="rSocAvg" value="13774" min="0" step="100" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">
+          <b>参考值：</b>2024 年深圳全口径社平约 13774 元 → 2026 年口径可参考 <b>13774</b>；<br>
+          历史参考：2019 年 9309、2021 年 11620、2023 年 13730。按年均 3%–5% 增长外推。
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>&nbsp;</label>
+        <div class="hint" style="margin:0;padding-top:10px">缴费指数 = 缴费工资 ÷ 社平工资，并受 <b>60%–300%</b>（即 0.6–3.0）限制。<br>深圳养老金<b>计发基数</b>（专项字段，独立于社平）2026 年为 11293 元。</div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="rAccount">个人账户当前余额（元）</label>
+        <input type="number" id="rAccount" value="0" min="0" step="1000" inputmode="numeric">
+        <div class="hint" style="margin-top:6px">填了直接算；留 0 则按复利估算</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rAcctRate">账户记账利率（%）</label>
+        <input type="number" id="rAcctRate" value="4.0" min="0" step="0.1" inputmode="decimal">
+        <div class="hint" style="margin-top:6px">近年实际约 3%–6%，长期建议取 4%</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rIdentity">户籍身份</label>
+        <select id="rIdentity">
+          <option value="sz" selected>深户（含地方补助）</option>
+          <option value="nsz">非深户（无地方补助）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:12px">
+      <div class="field" style="margin-bottom:0">
+        <label for="rEarly">1998年6月前视同/实际缴费年限（年）</label>
+        <input type="number" id="rEarly" value="0" min="0" step="0.5" inputmode="decimal">
+        <div class="hint" id="rEarlyHint" style="margin-top:6px">
+          <b>参考值：</b>1998 年 6 月前已参保的才有，一般 <b>0–5 年</b>；<br>
+          · 1993 年前参加工作：按视同缴费年限据实填；<br>
+          · 1996 年前参加工作：通常 0–3 年；<br>
+          · 1998 年 6 月后参保：填 <b>0</b>（无过渡性养老金）。
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label for="rEarlyIndex">1998年6月前平均缴费指数</label>
+        <input type="number" id="rEarlyIndex" value="0.42" min="0" max="3" step="0.01" inputmode="decimal">
+        <div class="hint" style="margin-top:6px"><b>参考值：</b>深圳普遍按 <b>0.4–0.6</b> 取值，默认 0.42</div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>&nbsp;</label>
+        <div class="hint" style="margin:0;padding-top:10px">过渡性养老金 = 计发基数 × 早期指数 × 早期年限 × 1.2%<br>（有过渡性养老金时，不再另发“缴费年限津贴 4 元/年”）</div>
+      </div>
+    </div>
+
+    <div class="grid3" style="margin-top:16px">
+      <div class="kv" style="border-color:var(--brand);background:#fff">
+        <div class="k" style="color:var(--brand);font-weight:700">缴费总年限</div>
+        <div class="v" id="r-total" style="color:var(--brand)">—<small> 年</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--warn);background:#fff">
+        <div class="k" style="color:var(--warn);font-weight:700">预计月养老金</div>
+        <div class="v" id="r-pension" style="color:var(--warn)">—<small> 元</small></div>
+      </div>
+      <div class="kv" style="border-color:var(--nonsz);background:#fff">
+        <div class="k" style="color:var(--nonsz);font-weight:700">替代率</div>
+        <div class="v" id="r-ratio" style="color:var(--nonsz)">—</div>
+      </div>
+    </div>
+    <div id="rRatioHint" style="margin-top:8px;font-size:12.5px;color:var(--ink3);line-height:1.6"></div>
+
+    <div class="tscroll" style="margin-top:14px">
+    <table>
+      <thead>
+        <tr>
+          <th>组成</th>
+          <th>计算口径</th>
+          <th>金额（元/月）</th>
+        </tr>
+      </thead>
+      <tbody id="rBody"></tbody>
+    </table>
+    </div>
+
+    <div class="callout info" id="rNote" style="margin-top:14px"></div>
+  </div>
+
+  <!-- 规则说明 -->
+  <div class="card">
+    <h2><span class="num">i</span>2026年费率口径与计算规则</h2>
+    <ul>
+      <li><b>养老保险：</b>单位 16%、个人 8%；<b>深户另有单位缴纳地方补充养老保险 1%</b>，非深户无此项。基数 4775–27549 元。</li>
+      <li><b>医疗保险：</b>一档单位 6% / 个人 2%；二档单位 1.5% / 个人 0.5%。基数 6727–33633 元（2026 年 1–12 月）。<b>深户强制一档；非深户可选一档或二档</b>（实际由单位申报决定，非政策强制）。</li>
+      <li><b>生育保险：</b>单位 0.5%，个人不缴。基数与医保一致 6727–33633 元。</li>
+      <li><b>工伤保险：</b>单位按行业 0.2%–1.4% 分八档，<b>个人不缴</b>。</li>
+      <li><b>失业保险：</b>单位 0.8% / 个人 0.2%。基数 2520–44265 元。</li>
+      <li><b>住房公积金：</b>单位与个人比例各在 5%–12% 之间，<b>可以不同</b>，基数另设上下限。公积金<b>不属于社保</b>，是独立缴存。</li>
+      <li><b>个税：</b>综合所得按<b>累计预扣法</b>计算，税率 3%–45% 七档；累计应纳税所得额 = 累计收入 − 5000×月数 − 累计五险一金个人部分 − 累计专项附加扣除。</li>
+      <li><b>公积金贷款（2026.4.30 新政）：</b>可贷额度 = <b>账户余额 × 16 倍</b>（2026 年起按余额倍数核定），并受<b>最高额度</b>与<b>房价可贷额</b>双重约束，取三者最小值。最高额度：单独申请基础 <b>70 万</b>、共同申请基础 <b>130 万</b>；上浮情形（首套 +60%、初婚初育 +50%、两孩 +70%、保障房 +40%，可累加最高 +170%）后，单独最高 <b>189 万</b>、共同最高 <b>351 万</b>。首付：商品住房 ≥20%、保障房 ≥15%。期限最长 30 年且<b>年龄 + 期限 ≤ 70 岁</b>；月供 ≤ 缴存基数 <b>50%</b>（超限则按能力压降公积金可贷额）。利率：首套 5 年以上 2.6%、二套 3.075%。超出公积金部分由<b>商业贷款补足</b>（组合贷）。</li>
+      <li><b>养老金（2026 深圳口径）：</b>月养老金 = <b>基础养老金</b> + <b>个人账户养老金</b> + <b>过渡性养老金</b>（1998.6 前有缴费年限时）+ <b>缴费年限津贴</b>（4 元/年，与过渡性养老金不重复）+ <b>加发过渡性养老金</b>（+100 元）+ <b>地方补助</b>（仅深户）。其中基础养老金 = (计发基数 × (1+平均缴费指数)) ÷ 2 × 缴费年限 × 1%，深圳 2026 <b>计发基数 11293 元</b>（独立于社平工资）；个人账户养老金 = 储存额 ÷ 计发月数（50 岁 195、55 岁 170、60 岁 139、63 岁 117、63 岁 1 个月 116.3）；过渡性养老金 = 计发基数 × 1998.6 前指数 × 早期年限 × 1.2%；地方补助 = 年限 × 指数 × 18.5 + 20。缴费基数下限 4775 元。<b>平均缴费指数</b> = 本人历年缴费工资 ÷ 当年社平工资的平均值，全国统一限制在 <b>0.6–3.0</b>（缴费基数按社平 60%–300% 设定）；可按「缴费工资 ÷ 社平工资」快速预估。</li>
+    </ul>
+  </div>
+
+  <div class="card" style="text-align:center">
+    <button id="shareBtn" style="width:100%;padding:13px;font-size:15px;font-weight:600;color:#fff;background:var(--brand);border:none;border-radius:11px;font-family:inherit;cursor:pointer">
+      复制我的测算结果 · 分享给朋友
+    </button>
+    <div class="hint" id="shareHint" style="margin-top:9px">点击后复制为文字，可直接粘贴到微信聊天。</div>
+  </div>
+
+  <footer>
+    费率依据：深圳市医疗保障局 2026 年缴费基数通知、《深圳市医疗保障办法》《广东省职工生育保险规定》及公开缴费口径（2026 年 1–12 月执行）。<br>
+    结果为按公开口径的估算，实际以社保/税务系统核定与公司申报为准。
+  </footer>
+</div>
+
+<script>
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  var baseEl = $('base'), tierEl = $('tier'), injEl = $('inj'), hfbaseEl = $('hfbase');
+  var hfcoEl = $('hfco'), hfmeEl = $('hfme');
+  var deduManualEl = $('deduManual');
+  var fillSalaryEl = $('fillSalary'), bonusEl = $('bonus'), bonusMonthEl = $('bonusMonth');
+  var overtimeEl = $('overtime'), overtimeMonthEl = $('overtimeMonth');
+  var thirteenthEl = $('thirteenth');
+  var bonusTaxModeEl = $('bonusTaxMode');
+  var identMode = 's';   // 本人身份：s=深户  n=非深户
+  var nsTier = 2;        // 非深户所选档次：1 或 2
+
+  // 基数上下限
+  var LIM = {
+    pension: [4775, 27549],
+    medical: [6727, 33633],
+    unemp:   [2520, 44265]
+  };
+  var RATE = {
+    pensionCo_ns: 0.16, pensionCo_s: 0.17, pensionMe: 0.08, // 深户含地补1%
+    med1: {co:0.06, me:0.02}, med2:{co:0.015, me:0.005},
+    mat: {co:0.005, me:0},
+    unemp: {co:0.008, me:0.002}
+  };
+
+  function clamp(v, r){ return Math.min(Math.max(v, r[0]), r[1]); }
+  function toNum(v){ var n = parseFloat(v); return isNaN(n) || n < 0 ? 0 : n; }
+  function fmt(n){ return n.toLocaleString('zh-CN', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function fmtInt(n){ return n.toLocaleString('zh-CN', {maximumFractionDigits:0}); }
+  function pct(r){ return (r*100).toFixed(r*100 % 1 === 0 ? 0 : 1) + '%'; }
+
+  function calcCalc(isShenzhen){
+    var base = toNum(baseEl.value);
+    var hfbase = toNum(hfbaseEl.value);
+    var injRate = toNum(injEl.value);
+    var hfCoRate = toNum(hfcoEl.value);
+    var hfMeRate = toNum(hfmeEl.value);
+
+    var pBase = clamp(base, LIM.pension);
+    var mBase = clamp(base, LIM.medical);
+    var uBase = clamp(base, LIM.unemp);
+
+    // 深户强制一档；非深户按所选档次（一档 / 二档）
+    var t;
+    if(isShenzhen){ t = 1; }
+    else { t = nsTier; }
+    var medRate = t === 1 ? RATE.med1 : RATE.med2;
+
+    var rows = [];
+    // 养老
+    var pCo = pBase * (isShenzhen ? RATE.pensionCo_s : RATE.pensionCo_ns);
+    var pMe = pBase * RATE.pensionMe;
+    rows.push({name:'养老保险', note: isShenzhen ? '含地方补充1%' : '', base:pBase,
+      rate: (isShenzhen?'17%':'16%') + ' / 8%', co:pCo, me:pMe});
+
+    // 医疗
+    rows.push({name:'医疗保险(' + (t===1?'一档':'二档') + ')', note:'', base:mBase,
+      rate: pct(medRate.co) + ' / ' + pct(medRate.me), co:mBase*medRate.co, me:mBase*medRate.me});
+
+    // 生育
+    rows.push({name:'生育保险', note:'', base:mBase,
+      rate:'0.5% / —', co:mBase*RATE.mat.co, me:0});
+
+    // 工伤
+    rows.push({name:'工伤保险', note:'', base:mBase,
+      rate:pct(injRate) + ' / —', co:mBase*injRate, me:0});
+
+    // 失业
+    rows.push({name:'失业保险', note:'', base:uBase,
+      rate:'0.8% / 0.2%', co:uBase*RATE.unemp.co, me:uBase*RATE.unemp.me});
+
+    // 小计（社保）
+    var sCo = 0, sMe = 0;
+    rows.forEach(function(r){ sCo += r.co; sMe += r.me; });
+
+    // 公积金（单位与个人比例可不同）
+    var hfCo = hfbase * hfCoRate, hfMe = hfbase * hfMeRate;
+
+    return {
+      isShenzhen:isShenzhen, rows:rows, tier:t,
+      socCo:sCo, socMe:sMe, socTotal:sCo+sMe,
+      hfCo:hfCo, hfMe:hfMe, hfTotal:hfCo+hfMe,
+      hfCoRate:hfCoRate, hfMeRate:hfMeRate, hfbase:hfbase,
+      coTotal:sCo+hfCo, meTotal:sMe+hfMe, total:sCo+sMe+hfCo+hfMe
+    };
+  }
+
+  // 按指定「社保基数」与「公积金基数」计算当月个人五险一金与公积金（单位+个人）。
+  // 用于版块3「逐月不同缴费基数」场景：社保与公积金基数可分别不同（深圳两套上下限）。
+  function insForBase(base, hfBaseArg){
+    var isShenzhen = (identMode === 's');
+    var hfMeRate = toNum(hfmeEl.value);   // 个人公积金比例
+    var hfCoRate = toNum(hfcoEl.value);   // 单位公积金比例
+    var injRate = toNum(injEl.value);
+
+    var pBase = clamp(base, LIM.pension);
+    var mBase = clamp(base, LIM.medical);
+    var uBase = clamp(base, LIM.unemp);
+
+    // 深户强制一档；非深户按所选档次
+    var t = isShenzhen ? 1 : nsTier;
+    var medRate = t === 1 ? RATE.med1 : RATE.med2;
+
+    var me = 0;
+    me += pBase * RATE.pensionMe;         // 养老 个人 8%
+    me += mBase * medRate.me;             // 医疗 个人
+    me += uBase * RATE.unemp.me;          // 失业 个人 0.2%
+    // 生育、工伤 个人不缴
+
+    // 公积金基数：未传时退回社保基数（旧调用兼容）
+    var hfBase = (hfBaseArg == null || !(hfBaseArg > 0)) ? base : hfBaseArg;
+    var hfMe = hfBase * hfMeRate;         // 公积金 个人
+    var hfCo = hfBase * hfCoRate;         // 公积金 单位
+    // 「五险一金(个人)」含公积金个人部分（与版块4 试算器口径一致）
+    return { me: me + hfMe, hfBoth: hfMe + hfCo };
+  }
+
+  // ===== 个税（综合所得累计预扣法）=====
+  var TAX_BRACKETS = [
+    {cap:36000,   rate:0.03, ded:0},
+    {cap:144000,  rate:0.10, ded:2520},
+    {cap:300000,  rate:0.20, ded:16920},
+    {cap:420000,  rate:0.25, ded:31920},
+    {cap:660000,  rate:0.30, ded:52920},
+    {cap:960000,  rate:0.35, ded:85920},
+    {cap:Infinity,rate:0.45, ded:181920}
+  ];
+  function taxOfMonth(cumTaxable){
+    if(cumTaxable <= 0) return {rate:0, ded:0, cum:0};
+    for(var i=0;i<TAX_BRACKETS.length;i++){
+      if(cumTaxable <= TAX_BRACKETS[i].cap){
+        return {rate:TAX_BRACKETS[i].rate, ded:TAX_BRACKETS[i].ded,
+                cum: cumTaxable*TAX_BRACKETS[i].rate - TAX_BRACKETS[i].ded};
+      }
+    }
+    return {rate:0.45, ded:181920, cum: cumTaxable*0.45-181920};
+  }
+  // 全年一次性奖金「单独计税」月度税率表（奖金÷12 查档，税额 = 奖金 × 税率 − 速算扣除数）
+  var BONUS_MONTH_BRACKETS = [
+    {cap:3000,    rate:0.03, ded:0},
+    {cap:12000,   rate:0.10, ded:210},
+    {cap:25000,   rate:0.20, ded:1410},
+    {cap:35000,   rate:0.25, ded:2660},
+    {cap:55000,   rate:0.30, ded:4410},
+    {cap:80000,   rate:0.35, ded:7160},
+    {cap:Infinity,rate:0.45, ded:15160}
+  ];
+  function bonusTaxSeparate(bonus){
+    if(!(bonus > 0)) return {tax:0, rate:0, ded:0, avg:0};
+    var avg = bonus / 12;
+    for(var i=0;i<BONUS_MONTH_BRACKETS.length;i++){
+      if(avg <= BONUS_MONTH_BRACKETS[i].cap){
+        var rate = BONUS_MONTH_BRACKETS[i].rate, ded = BONUS_MONTH_BRACKETS[i].ded;
+        return {tax: Math.max(0, bonus*rate - ded), rate:rate, ded:ded, avg:avg};
+      }
+    }
+    return {tax: bonus*0.45-15160, rate:0.45, ded:15160, avg:avg};
+  }
+  function getDeduction(){
+    var manual = deduManualEl.value.trim();
+    if(manual !== '') return toNum(manual);
+    var sum = 0;
+    document.querySelectorAll('#deductions input[type=checkbox]').forEach(function(c){
+      if(c.checked) sum += toNum(c.dataset.d);
+    });
+    return sum;
+  }
+  // ===== 只计算"当前身份"这一份 =====
+  function calcSelf(){
+    return calcCalc(identMode === 's');
+  }
+
+  // ===== 独立试算器：按输入的基数/比例/税前金额计算 =====
+  function calcTrial(){
+    var base = toNum($('cBase').value);
+    var hfbase = toNum($('cHfBase').value);
+    var salary = toNum($('cSalary').value);
+    var overtime = toNum($('cOvertime').value);
+    var hfCoRate = toNum($('cHfCo').value);
+    var hfMeRate = toNum($('cHfMe').value);
+    var month = parseInt($('cMonth').value, 10) || 12;
+    var dedu = getDeduction();
+    var isSZ = identMode === 's';
+    var t = isSZ ? 1 : nsTier;
+
+    var pBase = clamp(base, LIM.pension);
+    var mBase = clamp(base, LIM.medical);
+    var uBase = clamp(base, LIM.unemp);
+    var medRate = t === 1 ? RATE.med1 : RATE.med2;
+    var injRate = toNum(injEl.value);
+
+    var rows = [];
+    var pCo = pBase * (isSZ ? RATE.pensionCo_s : RATE.pensionCo_ns), pMe = pBase * RATE.pensionMe;
+    rows.push({name:'养老保险', note: isSZ?'含地方补充1%':'', base:pBase,
+      rate:(isSZ?'17%':'16%')+' / 8%', co:pCo, me:pMe});
+    rows.push({name:'医疗保险('+(t===1?'一档':'二档')+')', note:'', base:mBase,
+      rate:pct(medRate.co)+' / '+pct(medRate.me), co:mBase*medRate.co, me:mBase*medRate.me});
+    rows.push({name:'生育保险', note:'', base:mBase, rate:'0.5% / —', co:mBase*RATE.mat.co, me:0});
+    rows.push({name:'工伤保险', note:'', base:mBase, rate:pct(injRate)+' / —', co:mBase*injRate, me:0});
+    rows.push({name:'失业保险', note:'', base:uBase, rate:'0.8% / 0.2%',
+      co:uBase*RATE.unemp.co, me:uBase*RATE.unemp.me});
+    var socCo = 0, socMe = 0;
+    rows.forEach(function(r){ socCo += r.co; socMe += r.me; });
+    rows.push({name:'住房公积金', note:'', base:hfbase,
+      rate:pct(hfCoRate)+' / '+pct(hfMeRate), co:hfbase*hfCoRate, me:hfbase*hfMeRate});
+    var coTotal = socCo + hfbase*hfCoRate;
+    var meTotal = socMe + hfbase*hfMeRate;
+
+    // 应税收入 = 税前 + 加班
+    var income = salary + overtime;
+
+    // 无收入（税前+加班=0）时不产生缴费扣款，避免出现"到手为负"
+    var noIncome = income <= 0;
+    if(noIncome){
+      coTotal = 0; meTotal = 0;
+      rows.forEach(function(r){ r.base = 0; r.co = 0; r.me = 0; r.rate = '—'; });
+    }
+
+    // 个税与到手（按累计预扣，用"第几个月"推算）
+    var cumTaxable = Math.max(0, (income - 5000 - meTotal - dedu) * month);
+    var prevTaxable = Math.max(0, (income - 5000 - meTotal - dedu) * (month-1));
+    var monthTax = Math.max(0, taxOfMonth(cumTaxable).cum - taxOfMonth(prevTaxable).cum);
+    var net = income - meTotal - monthTax;
+
+    return {rows:rows, coTotal:coTotal, meTotal:meTotal, salary:salary, overtime:overtime,
+      income:income, month:month, monthTax:monthTax, net:net, tier:t, dedu:dedu,
+      hfBoth: income <= 0 ? 0 : (hfbase*hfCoRate + hfbase*hfMeRate)};
+  }
+
+  function renderTrial(){
+    var t = calcTrial();
+    $('c-co').innerHTML = fmtInt(t.coTotal) + '<small> 元/月</small>';
+    $('c-me').innerHTML = fmtInt(t.meTotal) + '<small> 元/月</small>';
+
+    $('cBody').innerHTML = t.rows.map(function(r){
+      return '<tr><td>' + r.name + (r.note ? '<span class="tag co">'+r.note+'</span>' : '') +
+        '</td><td>' + fmtInt(r.base) + '</td><td>' + r.rate + '</td><td>' + fmt(r.co) +
+        '</td><td>' + fmt(r.me) + '</td></tr>';
+    }).join('') +
+    '<tr class="total co"><td>合计</td><td>—</td><td>—</td><td>' + fmt(t.coTotal) + '</td><td>' + fmt(t.meTotal) + '</td></tr>';
+
+    var incomeNote = t.overtime > 0
+      ? '税前 ' + fmt(t.salary) + ' + 加班 ' + fmt(t.overtime) + ' = 应税收入 ' + fmt(t.income)
+      : '税前 ' + fmt(t.income);
+    $('cNet').innerHTML =
+      '<b>第 ' + t.month + ' 个月到手金额（个税累计预扣）：</b><br>' +
+      incomeNote + ' − 五险一金(个人) ' + fmt(t.meTotal) + ' − 个税 ' + fmt(t.monthTax) +
+      ' = <b style="font-size:16px">' + fmt(t.net) + ' 元/月</b><br>' +
+      '<span style="color:var(--ink2);font-size:12.5px">若再加上公积金(单位+个人) ' + fmt(t.hfBoth) +
+      ' 元，当月实际可支配 = <b>' + fmt(t.net + t.hfBoth) + ' 元</b>。' +
+      '个税按累计预扣法估算，专项附加扣除沿用上方勾选值（' + fmtInt(t.dedu) + ' 元/月）。</span>';
+
+    saveState();
+  }
+
+  // ===== 版块5：公积金贷款测算（深圳 2026 新政）=====
+  // 基础最高额度：单独申请 70 万 / 共同申请 130 万（2026.4.30 起）
+  var LOAN_BASE_LIMIT = {single: 700000, family: 1300000};
+  // 上浮后封顶：单独 189 万 / 共同 351 万（最高上浮 170%）
+  var LOAN_MAX_LIMIT  = {single: 1890000, family: 3510000};
+  var LOAN_AGE_CAP = 70;   // 年龄 + 贷款期限 ≤ 70 岁
+  var loanDownManualCustom = false;   // 用户是否手动选择了「自定义」首付比例
+
+  function calcLoan(){
+    var price = toNum($('lPrice').value);
+    var houseType = $('lType').value || 'commercial';  // commercial / affordable
+    var order = $('lOrder').value || 'first';           // first / second
+    var limitKey = $('lLimit').value || 'single';       // single / family
+    var yearsSel = parseInt($('lYears').value, 10) || 30;
+    var account = toNum($('lAccount').value);           // 账户余额
+    var incap = toNum($('lIncap').value);               // 家庭月缴存基数
+    var prepay = toNum($('lPrepay').value);
+    var upRate = toNum($('lUp').value);                 // 上浮比例
+    var age = toNum($('lAge').value);
+    var rate = toNum($('lRate').value) / 100;           // 公积金年利率
+    var bizRate = toNum($('lBizRate').value) / 100;     // 商业贷款年利率
+    var mode = $('lRepay').value;
+
+    // ── 首付：比例 ↔ 金额 双向联动，以「最近一次编辑」为准 ──
+    //  · 比例下拉选了具体档位 → 以比例为准：金额 = 房价 × 比例
+    //  · 比例下拉为「自定义」或用户改了金额 → 以金额为准：比例 = 金额 ÷ 房价
+    var minDown = houseType === 'affordable' ? 0.15 : 0.20;   // 最低首付比例
+    var downSelRaw = $('lDown').value;
+    var downAmtRaw = toNum($('lDownAmt').value);              // 用户填写的原始金额
+    var isCustom = (downSelRaw === 'custom') || (downSelRaw === '' );
+    var selRatio = isCustom ? 0 : parseFloat(downSelRaw);
+    var amtRatio = price > 0 ? downAmtRaw / price : 0;
+    // 比例优先（选了档位）否则金额优先
+    var down = (!isCustom && selRatio > 0) ? selRatio : amtRatio;
+    // 下限校验：首付不足最低比例 → 按下限锁定（但不覆盖用户输入框，见 renderLoan）
+    var belowDownMin = price > 0 && down > 0 && down < minDown - 1e-9;
+    if(belowDownMin) down = minDown;
+    var downAmt = price * down;   // 实际口径：金额 = 房价 × 比例
+    var downCustom = isCustom && price > 0 && downAmtRaw > 0 && !belowDownMin;  // 自定义比例标记
+
+    // ── 约束①：可贷额度 = 账户余额 × 16 倍 ──
+    var byAccount = account * 16;
+    // ── 约束②：最高额度 = 基础额度 ×(1 + 上浮比例)，且不超过封顶 ──
+    var baseLimit = LOAN_BASE_LIMIT[limitKey];
+    var upLimit = Math.min(baseLimit * (1 + upRate), LOAN_MAX_LIMIT[limitKey]);
+    // ── 约束③：房价可贷额 = 房价 ×(1−首付) ──
+    var byPrice = Math.max(0, price * (1 - down));
+
+    // 公积金实际可贷 = min(余额额度, 最高额度, 房价可贷额)
+    var hfAvailable = Math.max(0, Math.min(byAccount, upLimit, byPrice));
+
+    // ── 贷款年限约束：最长 30 年，且 年龄 + 期限 ≤ 70 岁 ──
+    var maxYearsByAge = Math.max(0, LOAN_AGE_CAP - age);
+    var years = Math.min(yearsSel, 30, maxYearsByAge);
+    var yearsLimited = years < yearsSel;
+    // 年龄已满/接近 70 岁 → 无可贷期限，直接判定无法贷款（阻断后续所有月供计算）
+    var noLoan = age > 0 && maxYearsByAge <= 0;
+
+    var n = years * 12;
+    var mr = rate / 12;
+    var bizMr = bizRate / 12;
+
+    // ── 还款能力校验：月供（等额本息本息合计）≤ 缴存基数 × 50% ──
+    var capacity = incap * 0.5;
+
+    // 先按可贷额算公积金月供
+    function monthly(principal, months, mrate, method){
+      if(months <= 0 || principal <= 0) return 0;
+      if(method === 'equal'){
+        return mrate > 0 ? principal * mrate * Math.pow(1+mrate, months) / (Math.pow(1+mrate, months) - 1) : principal / months;
+      }
+      return principal / months + principal * mrate; // 等额本金首月
+    }
+
+    // 无法贷款（年龄 + 期限 ≤ 70 无可行期限）→ 全部结果清零并阻断
+    if(noLoan){
+      return {
+        byAccount:byAccount, baseLimit:baseLimit, upLimit:upLimit, byPrice:byPrice,
+        hfAvailable:0, hfPrincipal:0, bizPrincipal:0,
+        limitKey:limitKey, order:order, houseType:houseType, down:down,
+        downAmt:downAmt, downAmtRaw:downAmtRaw, minDown:minDown, belowDownMin:belowDownMin,
+        downCustom:downCustom,
+        yearsSel:yearsSel, years:0, yearsLimited:yearsLimited, noLoan:true,
+        capacity:capacity, capacityLimited:false, capacityOver:false, unfunded:0,
+        rate:rate, bizRate:bizRate, mode:mode, prepay:prepay, excess:0,
+        n:0, firstPay:0, lastPay:0,
+        totalPay:0, totalInterest:0,
+        hfFirst:0, hfInterest:0, bizFirst:0, bizInterest:0
+      };
+    }
+
+    var hfFirstPay = monthly(hfAvailable, n, mr, mode);
+
+    // 还款能力校验：若月供超能力，按能力反推可贷本金（等额本息）
+    var capacityLimited = false;
+    var hfPrincipal = hfAvailable;
+    if(capacity > 0 && hfFirstPay > capacity){
+      capacityLimited = true;
+      if(mode === 'equal' && mr > 0){
+        // 由月供上限反推本金：P = M × (1-(1+r)^-n) / r
+        hfPrincipal = capacity * (1 - Math.pow(1+mr, -n)) / mr;
+      } else if(n > 0){
+        hfPrincipal = Math.max(0, (capacity - 0) * n / (1 + mr * n));
+      }
+      hfPrincipal = Math.max(0, Math.min(hfPrincipal, hfAvailable));
+      hfFirstPay = monthly(hfPrincipal, n, mr, mode);
+    }
+
+    // 剩余缺口走商贷
+    var bizPrincipal = Math.max(0, byPrice - hfPrincipal - prepay);
+
+    // 月供（公贷）
+    var hfLast = 0, hfTotal = 0, hfInterest = 0;
+    if(n > 0 && hfPrincipal > 0){
+      if(mode === 'equal'){
+        hfTotal = hfFirstPay * n; hfInterest = hfTotal - hfPrincipal; hfLast = hfFirstPay;
+      } else {
+        var pp = hfPrincipal / n;
+        hfInterest = hfPrincipal * mr * (n + 1) / 2;
+        hfTotal = hfPrincipal + hfInterest;
+        hfLast = pp + pp * mr;
+      }
+    }
+    // 月供（商贷）
+    var bizFirst = 0, bizLast = 0, bizTotal = 0, bizInterest = 0;
+    if(n > 0 && bizPrincipal > 0){
+      if(mode === 'equal'){
+        bizFirst = bizMr > 0 ? bizPrincipal * bizMr * Math.pow(1+bizMr, n) / (Math.pow(1+bizMr, n) - 1) : bizPrincipal / n;
+        bizLast = bizFirst; bizTotal = bizFirst * n; bizInterest = bizTotal - bizPrincipal;
+      } else {
+        var bpp = bizPrincipal / n;
+        bizInterest = bizPrincipal * bizMr * (n + 1) / 2;
+        bizTotal = bizPrincipal + bizInterest;
+        bizFirst = bpp + bizPrincipal * bizMr;
+        bizLast = bpp + bpp * bizMr;
+      }
+    }
+
+    // ── 组合贷总月供还款能力校验 ──
+    // 说明：公积金中心「月供 ≤ 缴存基数 50%」的硬约束主要针对公积金贷款部分（已在上面压降）；
+    // 商贷额度由商业银行按自身风控审批，此处不强行压缩商贷本金，仅如实计算总月供并给出超限提示，
+    // 让用户看到真实月供压力（避免"账面月供很低、实际贷不到"的误导）。
+    var combinedFirst = hfFirstPay + bizFirst;
+    var capacityOver = (capacity > 0 && combinedFirst > capacity + 0.5 && n > 0);
+    var unfunded = 0;
+
+    var totalFirst = hfFirstPay + bizFirst;
+    return {
+      byAccount:byAccount, baseLimit:baseLimit, upLimit:upLimit, byPrice:byPrice,
+      hfAvailable:hfAvailable, hfPrincipal:hfPrincipal, bizPrincipal:bizPrincipal,
+      limitKey:limitKey, order:order, houseType:houseType, down:down,
+      downAmt:downAmt, downAmtRaw:downAmtRaw, minDown:minDown, belowDownMin:belowDownMin,
+      downCustom:downCustom,
+      yearsSel:yearsSel, years:years, yearsLimited:yearsLimited, noLoan:false,
+      capacity:capacity, capacityLimited:capacityLimited, capacityOver:capacityOver, unfunded:unfunded,
+      rate:rate, bizRate:bizRate, mode:mode, prepay:prepay, excess:byPrice - hfPrincipal - prepay,
+      n:n, firstPay:totalFirst, lastPay:hfLast + bizLast,
+      totalPay:hfTotal + bizTotal, totalInterest:hfInterest + bizInterest,
+      hfFirst:hfFirstPay, hfInterest:hfInterest, bizFirst:bizFirst, bizInterest:bizInterest
+    };
+  }
+
+  function renderLoan(){
+    var l = calcLoan();
+    var price = toNum($('lPrice').value);
+    var downPay = l.downAmt;                            // 首付金额（已按比例/下限统一口径）
+    var loanPrincipal = l.hfPrincipal + l.bizPrincipal; // 贷款本金
+    var totalOut = downPay + l.totalPay;                // 购房合计支出（首付 + 累计还款）
+
+    // 同步首付金额输入框：
+    //  · 用户正在编辑（聚焦）→ 不回写，保留其输入
+    //  · 首付低于下限 → 不回写（避免"手一抖就被改回去"），仅由提示说明已按下限计算
+    //  · 其余情况（改比例/改房价/改性质）→ 回写为实际首付金额
+    var amtEl = $('lDownAmt');
+    if(amtEl && document.activeElement !== amtEl && !l.belowDownMin){
+      amtEl.value = Math.round(downPay);
+    }
+    // 同步下拉比例：
+    //  · 用户选了具体档位且金额一致 → 保持该档
+    //  · 金额反算出的比例恰为某档位 → 选中该档
+    //  · 否则 → 选中「自定义」档（不留下空白）
+    // 手动选中「自定义」后，在用户再次改动金额/价格前保持自定义（不自动弹回档位）
+    var selEl = $('lDown');
+    var matchVal = null;
+    for(var k=0;k<selEl.options.length;k++){
+      var ov = parseFloat(selEl.options[k].value);
+      if(!isNaN(ov) && Math.abs(ov - l.down) < 0.001){ matchVal = selEl.options[k].value; break; }
+    }
+    if(loanDownManualCustom){
+      // 用户手动选了「自定义」→ 尊重其选择，不回弹档位（直到下次改金额/比例）
+      selEl.value = 'custom';
+    } else if(document.activeElement === amtEl){
+      // 用户正在输入金额 → 只在能精确匹配档位时切换，否则不打扰输入
+      if(matchVal !== null) selEl.value = matchVal;
+      else if(selEl.value === '') selEl.value = 'custom';
+    } else if(matchVal !== null){
+      selEl.value = matchVal;
+    } else {
+      selEl.value = 'custom';
+    }
+
+    // 首付提示（金额 ↔ 比例）
+    var dh = $('lDownAmtHint');
+    if(dh){
+      if(l.belowDownMin){
+        dh.innerHTML = '<b style="color:var(--warn)">⚠ 首付不足最低比例（' + pct(l.minDown) + '），已按下限 ' + fmtInt(price*l.minDown) + ' 元锁定</b>';
+      } else {
+        dh.innerHTML = '占房价 <b>' + pct(l.down) + '</b>（最低 ' + pct(l.minDown) + '）';
+      }
+    }
+
+    $('l-down').innerHTML = fmtInt(downPay) + '<small> 元</small>';
+    $('l-principal').innerHTML = fmtInt(loanPrincipal) + '<small> 元</small>';
+    $('l-month').innerHTML = fmtInt(l.firstPay) + '<small> 元</small>';
+    $('l-interest').innerHTML = fmtInt(l.totalInterest) + '<small> 元</small>';
+    $('l-total-out').innerHTML = fmtInt(totalOut) + '<small> 元</small>';
+    $('l-cash').innerHTML = fmtInt(downPay) + '<small> 元</small>';
+
+    // 可贷额度约束明细
+    var rows = '';
+    rows += '<tr><td>① 首付金额</td><td>房价 ' + fmtInt(price) + ' × 首付 ' + pct(l.down) + (l.belowDownMin ? '（按最低比例锁定）' : '') + '</td><td>' + fmt(downPay) + '</td></tr>';
+    rows += '<tr><td>② 账户余额×16倍</td><td>余额 ' + fmtInt(toNum($('lAccount').value)) + ' × 16</td><td>' + fmt(l.byAccount) + '</td></tr>';
+    rows += '<tr><td>③ 最高额度</td><td>' + (l.limitKey==='single'?'单独':'共同') + '基础 ' + fmtInt(l.baseLimit) + ' × (1+上浮 ' + pct(toNum($('lUp').value)) + ')</td><td>' + fmt(l.upLimit) + '</td></tr>';
+    rows += '<tr><td>④ 房价可贷额</td><td>房价 ' + fmtInt(price) + ' − 首付 ' + fmtInt(downPay) + '</td><td>' + fmt(l.byPrice) + '</td></tr>';
+    rows += '<tr><td>⑤ 公积金可贷（取小）</td><td>min(②,③,④)' + (l.capacityLimited ? ' → 受还款能力压降' : '') + '</td><td>' + fmt(l.hfPrincipal) + '</td></tr>';
+    if(l.bizPrincipal > 0){
+      rows += '<tr><td>⑥ 商业贷款补足</td><td>④ − ⑤（超出公积金部分）</td><td>' + fmt(l.bizPrincipal) + '</td></tr>';
+    }
+    rows += '<tr class="total co"><td>合计贷款本金</td><td>⑤' + (l.bizPrincipal>0?' + ⑥':'') + '</td><td>' + fmt(loanPrincipal) + '</td></tr>';
+    rows += '<tr class="total co"><td>购房合计支出</td><td>首付 ' + fmtInt(downPay) + ' + 累计还款 ' + fmtInt(l.totalPay) + '</td><td>' + fmt(totalOut) + '</td></tr>';
+    $('lBody').innerHTML = rows;
+
+    // 资金缺口 / 约束提示
+    var gapEl = $('lGap');
+    var msgs = [];
+    if(l.noLoan){
+      msgs.push('⛔ <b>无法贷款</b>：借款人年龄 ' + toNum($('lAge').value) + ' 岁，已不满足「年龄 + 贷款期限 ≤ 70 岁」的条件，无可行贷款期限。请核对年龄或改为一次性付款方案。');
+    }
+    if(l.belowDownMin){
+      msgs.push('⚠ <b>首付不足</b>：' + (l.houseType==='affordable'?'保障性住房':'商品住房') + '最低首付为 <b>' + pct(l.minDown) + '</b>（' + fmtInt(price*l.minDown) + ' 元），已按最低比例锁定首付与贷款额。');
+    }
+    var totalBorrow = l.hfPrincipal + l.bizPrincipal;
+    if(totalBorrow > 0){
+      msgs.push('💰 需向银行借款合计 <b>' + fmt(totalBorrow) + ' 元</b>，其中公积金 <b>' + fmt(l.hfPrincipal) + ' 元</b>' +
+        (l.bizPrincipal > 0 ? '，商业贷款补足 <b style="color:var(--warn)">' + fmt(l.bizPrincipal) + ' 元</b>。' : '。'));
+    }
+    if(l.capacityLimited){
+      msgs.push('⚠ <b>还款能力受限</b>：月供给付上限为缴存基数 50%（' + fmt(l.capacity) + ' 元），公积金可贷额度按此压降至 ' + fmt(l.hfPrincipal) + ' 元。');
+    }
+    if(l.capacityOver){
+      msgs.push('⚠ <b>组合贷月供偏高</b>：公积金 + 商贷月供合计 <b>' + fmt(l.firstPay) + ' 元</b>，已超过缴存基数 50%（' +
+        fmt(l.capacity) + ' 元）。公积金部分已按上限压降，商贷需银行审批，建议提高首付或延长年限以降低月供压力。');
+    }
+    if(l.yearsLimited && !l.noLoan){
+      msgs.push('⚠ <b>贷款年限受限</b>：年龄 ' + toNum($('lAge').value) + ' 岁 + 期限需 ≤ 70 岁，最长期限由 ' + l.yearsSel + ' 年缩短为 <b>' + l.years + ' 年</b>。');
+    }
+    if(l.byAccount < l.byPrice && l.byAccount < l.upLimit){
+      msgs.push('ℹ 账户余额 × 16 倍（' + fmtInt(l.byAccount) + ' 元）是当前主要约束，可通过继续缴存提高可贷额度。');
+    }
+    if(msgs.length){ gapEl.style.display = ''; gapEl.innerHTML = msgs.join('<br>'); }
+    else { gapEl.style.display = 'none'; }
+
+    var modeName = l.mode === 'equal' ? '等额本息' : '等额本金';
+    var monthNote = l.mode === 'equal'
+      ? '每月月供 <b>' + fmt(l.firstPay) + ' 元</b>'
+      : '首月月供 <b>' + fmt(l.firstPay) + ' 元</b>，逐月递减至末月 <b>' + fmt(l.lastPay) + ' 元</b>';
+
+    var splitNote;
+    if(l.bizPrincipal > 0){
+      splitNote = '· 贷款构成（组合贷）：<br>' +
+        '　— <b>公积金贷款</b> ' + fmt(l.hfPrincipal) + ' 元（利率 ' + (l.rate*100).toFixed(3) + '%），月供 ' + fmt(l.hfFirst) + ' 元，总利息 ' + fmt(l.hfInterest) + ' 元；<br>' +
+        '　— <b>商业贷款</b> ' + fmt(l.bizPrincipal) + ' 元（利率 ' + (l.bizRate*100).toFixed(2) + '%），月供 ' + fmt(l.bizFirst) + ' 元，总利息 ' + fmt(l.bizInterest) + ' 元。<br>';
+    } else {
+      splitNote = '· 全部使用公积金贷款（未超过可贷额度与还款能力上限）。<br>';
+    }
+
+    $('lNote').innerHTML =
+      '<b>贷款方案（' + modeName + '）：</b><br>' +
+      '· 房屋总价 ' + fmtInt(toNum($('lPrice').value)) + ' 元（' + (l.houseType==='affordable'?'保障性住房':'商品住房') + '·' + (l.order==='first'?'首套':'二套') + '），首付 ' + pct(l.down) + ' = <b>' + fmtInt(l.downAmt) + ' 元</b>' + (l.belowDownMin ? '（已按最低比例锁定）' : '') + '，贷款本金 <b>' + fmtInt(l.hfPrincipal + l.bizPrincipal) + ' 元</b>。<br>' +
+      splitNote +
+      '· 期限 ' + l.years + ' 年（' + l.n + ' 期）：' + monthNote + '。<br>' +
+      '· 累计还款 <b>' + fmt(l.totalPay) + ' 元</b>（本金 ' + fmt(l.hfPrincipal + l.bizPrincipal) + ' + 利息 ' + fmt(l.totalInterest) + '），支付总利息 <b>' + fmt(l.totalInterest) + ' 元</b>。<br>' +
+      '· 购房合计支出 <b>' + fmt(l.downAmt + l.totalPay) + ' 元</b>（首付 ' + fmtInt(l.downAmt) + ' + 累计还款 ' + fmtInt(l.totalPay) + '）。<br>' +
+      '<span style="color:var(--ink2);font-size:12.5px">依据深圳 2026.4.30 公积金新政：可贷额度 = 账户余额 × 16 倍；单独申请基础 70 万 / 共同申请基础 130 万，上浮后单独最高 189 万、共同最高 351 万；首套 5 年以上利率 2.6%、二套 3.075%；年龄 + 期限 ≤ 70 岁；月供 ≤ 缴存基数 50%；商品住房首付 ≥20%、保障房 ≥15%。实际以公积金中心柜台审核为准。</span>';
+
+    saveState();
+  }
+
+  // ===== 版块6：退休金测算（深圳 2026 口径）=====
+  // 深圳 2026 年基本养老金计发基数
+  var PENSION_BASE = 11293;
+  // 企业职工缴费基数下限（2026）
+  var PENSION_MIN_BASE = 4775;
+
+  // 计发月数：按实际退休年龄取值（国家统一表，按年龄插值）
+  function payMonthsOf(age){
+    // 关键档位（月数）：40→233, 45→216, 50→195, 55→170, 60→139, 63→117, 65→101, 70→56
+    var tbl = [
+      [40,233],[41,230],[42,226],[43,223],[44,220],[45,216],[46,212],[47,208],[48,204],[49,199],
+      [50,195],[51,190],[52,185],[53,180],[54,175],[55,170],[56,164],[57,158],[58,152],[59,145],
+      [60,139],[61,132],[62,125],[63,117],[64,109],[65,101],[66,93],[67,84],[68,75],[69,65],[70,56]
+    ];
+    if(age <= 40) return 233;
+    if(age >= 70) return 56;
+    for(var i=0;i<tbl.length-1;i++){
+      if(age >= tbl[i][0] && age < tbl[i+1][0]){
+        var t = (age - tbl[i][0]) / (tbl[i+1][0] - tbl[i][0]);
+        return tbl[i][1] + (tbl[i+1][1] - tbl[i][1]) * t;
+      }
+    }
+    return 139;
+  }
+
+  // ===== 平均缴费指数预估 =====
+  // 指数 = 本人缴费工资 ÷ 当年社平工资，全国统一限制在 60%–300% 即 0.6–3.0
+  var INDEX_MIN = 0.6, INDEX_MAX = 3.0;
+  function estimateIndex(salary, socAvg){
+    if(!(salary > 0) || !(socAvg > 0)) return null;
+    var raw = salary / socAvg;
+    var capped = Math.min(Math.max(raw, INDEX_MIN), INDEX_MAX);
+    return { raw:raw, value:parseFloat(capped.toFixed(2)),
+             hitMin: raw < INDEX_MIN - 1e-9, hitMax: raw > INDEX_MAX + 1e-9 };
+  }
+
+  // ===== 渐进式延迟退休年龄推算（依据 2025.1.1 起施行的《国务院关于渐进式延迟法定退休年龄的办法》）=====
+  // 男职工：原 60 岁 → 63 岁，每 4 个月延迟 1 个月（最大延迟 36 个月）
+  // 女职工·管理/技术岗（原女干部）：原 55 岁 → 58 岁，每 4 个月延迟 1 个月（最大延迟 36 个月）
+  // 女职工·生产/操作岗（原女工人）：原 50 岁 → 55 岁，每 2 个月延迟 1 个月（最大延迟 60 个月）
+  // 延迟月数 = ⌈(出生年月至原法定退休年月的月数) ÷ 步长⌉，向上取整（不足步长也进 1）
+  var RETIRE_PLAN = {
+    male:   { name:'男职工',                 base:60, step:4, maxDelay:36, dest:63 },
+    cadre:  { name:'女职工（管理/技术岗）',   base:55, step:4, maxDelay:36, dest:58 },
+    worker: { name:'女职工（生产/操作岗）',   base:50, step:2, maxDelay:60, dest:55 }
+  };
+
+  // 由出生年、出生月、人员类型推算法定退休年龄（返回岁数，含小数月）
+  function legalRetireAgeByBirth(birthYear, birthMonth, type){
+    var p = RETIRE_PLAN[type];
+    if(!p) p = RETIRE_PLAN.male;
+    var bm = Math.min(Math.max(parseInt(birthMonth,10) || 1, 1), 12);
+    // 出生年月至「原法定退休年月」的月数
+    var months = (birthYear + p.base - 2025) * 12 + bm;
+    if(months <= 0) return p.base;                       // 2025 年前就到龄
+    var delay = Math.ceil(months / p.step);              // 不足步长也进 1
+    delay = Math.min(delay, p.maxDelay);
+    if(delay < 0) delay = 0;
+    return p.base + delay / 12;                          // 60 岁 1 个月 → 60.0833
+  }
+
+  // 由「出生年月 + 人员类型」推算法定退休年龄；birthYear 可由出生年月直接给出，也可由「今年年龄」近似反推
+  // 返回 { retireAge, birthYear, birthMonth, type, plan, delayMonths, retireYear, retireYM }
+  function estimateRetireAge(workStartYear, curAge, type, curYear, birthMonth, birthYear){
+    var p = RETIRE_PLAN[type] || RETIRE_PLAN.male;
+    var y = curYear || new Date().getFullYear();
+    var a = parseFloat(curAge);
+    var by = (birthYear > 0) ? birthYear : Math.round(y - a);   // 优先用给定出生年，否则由年龄反推
+    if(!(by > 0)) return null;
+    var bm = birthMonth || 7;
+    var retireAge = legalRetireAgeByBirth(by, bm, type);
+    // 退休年月 = 出生年月 + 退休年龄（含延迟月数，精确到月）
+    var delayMonths = Math.round((retireAge - p.base) * 12);
+    var totalMonths = p.base * 12 + delayMonths;               // 从出生起算的总月数
+    var absIdx = (by * 12 + (bm - 1)) + totalMonths;           // 绝对月序号
+    var retireY = Math.floor(absIdx / 12);
+    var retireM = (absIdx % 12) + 1;
+    return {
+      retireAge: retireAge, birthYear: by, birthMonth: bm,
+      type: type, plan: p,
+      delayMonths: delayMonths,
+      retireYear: retireY, retireMonth: retireM,
+      retireYM: retireY + '-' + (retireM < 10 ? '0' : '') + retireM
+    };
+  }
+
+  // 由「参加工作年月」推算至今的已缴费年限（精确到月，保留 0.1 年）
+  // workYM: 'YYYY-MM'；refDate 默认今天
+  function estimatePaidYears(workStartYear, curYear){
+    var ref = (curYear instanceof Date) ? curYear : new Date();
+    var wsY, wsM;
+    if(workStartYear && typeof workStartYear === 'object'){
+      wsY = parseInt(workStartYear.year, 10); wsM = parseInt(workStartYear.month, 10) || 1;
+    } else if(typeof workStartYear === 'string' && /^\d{4}-\d{1,2}/.test(workStartYear)){
+      var mm = /^(\d{4})-(\d{1,2})/.exec(workStartYear);
+      wsY = parseInt(mm[1], 10); wsM = parseInt(mm[2], 10);
+    } else {
+      wsY = parseFloat(workStartYear); wsM = 1;
+    }
+    if(!(wsY > 0)) return null;
+    var months = (ref.getFullYear() * 12 + ref.getMonth()) - (wsY * 12 + (wsM - 1));
+    if(months < 0) months = 0;
+    return Math.round(months / 12 * 10) / 10;              // 保留 0.1 年
+  }
+
+
+  function calcPension(){
+    var age = toNum($('rAge').value);
+    var retireAge = parseFloat($('rRetireAge').value) || 60;
+    var paidYears = toNum($('rPaidYears').value);
+    var salaryInput = toNum($('rSalary').value);
+    // 平均缴费指数：未填(0)时按 1 兜底；填了则限制在 0.6–3.0
+    var avgIndexRaw = toNum($('rAvgIndex').value);
+    var avgIndex = avgIndexRaw > 0 ? Math.min(Math.max(avgIndexRaw, INDEX_MIN), INDEX_MAX) : 1;
+    var base = toNum($('rBase').value) || PENSION_BASE;   // 计发基数
+    var accountInput = toNum($('rAccount').value);
+    var acctRate = toNum($('rAcctRate').value) / 100;
+    var identity = $('rIdentity').value || 'sz';           // sz / nsz
+    var earlyYears = toNum($('rEarly').value);             // 1998.6 前年限
+    var earlyIndex = toNum($('rEarlyIndex').value);
+
+    // 缴费基数不低于下限；未填(0)时按下限计算，并标记「未填」以区别于「低于下限」
+    var salaryFilled = salaryInput > 0;
+    var salary = Math.max(salaryInput, PENSION_MIN_BASE);
+    var belowMin = salaryFilled && salaryInput < PENSION_MIN_BASE;
+
+    var remain = Math.max(0, retireAge - age);
+    var totalYears = paidYears + remain;
+
+    // ① 基础养老金 = (计发基数 × (1 + 平均缴费指数)) ÷ 2 × 缴费年限 × 1%
+    var basic = base * (1 + avgIndex) / 2 * totalYears * 0.01;
+
+    // ② 个人账户养老金 = 储存额 ÷ 计发月数
+    var payMonths = payMonthsOf(retireAge);
+    // 按月逐期计息：每月缴入 salary×8%，当月即开始计息（月利率由年利率折算），逐月递推至退休。
+    // 这样"已有余额"与"后续每月新增缴费"都被正确计息，不再低估。
+    function accountFV(initial, sal, months, r){
+      if(months <= 0) return initial > 0 ? initial : 0;
+      var monthlyPay = sal * 0.08;                 // 每月个人缴入
+      var mr = r > 0 ? Math.pow(1 + r, 1/12) - 1 : 0;  // 月利率
+      var bal = initial > 0 ? initial : 0;
+      for(var i=0;i<months;i++){
+        bal = bal * (1 + mr) + monthlyPay;         // 先计息，再加当月缴入
+      }
+      return bal;
+    }
+    var remainMonths = Math.round(remain * 12);
+    var totalMonths = Math.round(totalYears * 12);
+    var account, acctMode;
+    if(accountInput > 0){
+      acctMode = 'input';
+      // 已有余额 + 未来 remain 个月每月缴费，均按月逐期计息
+      account = accountFV(accountInput, salary, remainMonths, acctRate);
+    } else {
+      acctMode = 'estimate';
+      // 未填余额：默认从参加工作起缴满 totalYears 年，按月逐期计息估算
+      account = accountFV(0, salary, totalMonths, acctRate);
+    }
+    var accountPension = payMonths > 0 ? account / payMonths : 0;
+
+    // ③ 过渡性养老金（1998.6 前有视同/实际缴费年限）
+    //    = 计发基数 × 早期指数 × 早期年限 × 1.2%
+    var transitional = 0;
+    if(earlyYears > 0){
+      transitional = base * earlyIndex * earlyYears * 0.012;
+    }
+
+    // ④ 缴费年限津贴：每年 4 元（与过渡性养老金不重复享受）
+    var yearAllowance = transitional > 0 ? 0 : totalYears * 4;
+
+    // ⑤ 加发过渡性养老金：广东统一 +100 元
+    var extraTrans = 100;
+
+    // ⑥ 地方补助（仅深户）= 地方补充养老保险缴费年限 × 平均缴费指数 × 18.5 + 20
+    //    地方补充养老保险由深户单位缴纳；以"深户缴费年限"近似为总缴费年限（深户期间）
+    var localSubsidy = 0;
+    if(identity === 'sz'){
+      localSubsidy = totalYears * avgIndex * 18.5 + 20;
+    }
+
+    var total = basic + accountPension + transitional + yearAllowance + extraTrans + localSubsidy;
+    // 替代率分母：以「本人实际缴费工资」为准；未填(0)时用下限 4775 作参考，
+    // 并标记 denomIsMin，避免把「未填」误当成真实工资而给出虚高/虚低的替代率。
+    var denomIsMin = !salaryFilled;
+    var ratio = salary > 0 ? total / salary : 0;
+
+    return {
+      age:age, retireAge:retireAge, remain:remain, paidYears:paidYears, totalYears:totalYears,
+      salary:salary, salaryInput:salaryInput, salaryFilled:salaryFilled, belowMin:belowMin,
+      denomIsMin:denomIsMin, avgIndex:avgIndex, base:base,
+      account:account, acctMode:acctMode, acctRate:acctRate, accountInput:accountInput,
+      payMonths:payMonths, basic:basic, accountPension:accountPension,
+      transitional:transitional, yearAllowance:yearAllowance, extraTrans:extraTrans,
+      localSubsidy:localSubsidy, identity:identity, earlyYears:earlyYears, earlyIndex:earlyIndex,
+      total:total, ratio:ratio
+    };
+  }
+
+  function renderPension(){
+    var r = calcPension();
+    $('r-total').innerHTML = r.totalYears.toFixed(1) + '<small> 年</small>';
+    $('r-pension').innerHTML = fmtInt(r.total) + '<small> 元</small>';
+    $('r-ratio').innerHTML = (r.ratio*100).toFixed(1) + '%';
+    // 替代率分母说明：缴费工资未填 → 按下限参考；低于下限 → 已按下限计算
+    var ratioNoteEl = $('rRatioHint');
+    if(ratioNoteEl){
+      if(r.denomIsMin){
+        ratioNoteEl.innerHTML = '<span style="color:var(--warn)">⚠ 未填「本人缴费工资」，替代率暂按缴费下限 ' +
+          fmtInt(r.salary) + ' 元 为分母估算，仅供参考；填写实际缴费工资后更准确。</span>';
+      } else if(r.belowMin){
+        ratioNoteEl.innerHTML = '<span style="color:var(--warn)">⚠ 缴费工资低于深圳下限 ' + fmtInt(r.salary) +
+          ' 元，已按下限作为替代率分母。</span>';
+      } else {
+        ratioNoteEl.innerHTML = '<span style="color:var(--ink3)">替代率 = 养老金 ÷ 本人缴费工资 ' +
+          fmtInt(r.salary) + ' 元。</span>';
+      }
+    }
+
+    // 早期年限（1998.6 前）自动提示：由参加工作年月推算
+    var eHint = $('rEarlyHint');
+    if(eHint){
+      var wsYMe = parseBirthYM($('rWorkYM') ? $('rWorkYM').value : '');
+      if(wsYMe && (wsYMe.year < 1998 || (wsYMe.year === 1998 && wsYMe.month <= 6))){
+        var mBefore = (1998*12 + 5) - (wsYMe.year*12 + (wsYMe.month-1));  // 1998.6 之前的月数
+        var yBefore = Math.max(0, Math.round(mBefore / 12 * 10) / 10);
+        eHint.innerHTML = '<b style="color:var(--brand)">建议值：约 ' + yBefore.toFixed(1) +
+          ' 年</b>（自 ' + wsYMe.year + ' 年 ' + wsYMe.month + ' 月至 1998 年 6 月）。<br>' +
+          '<span style="color:var(--ink3)">一般 0–5 年；1993 年前参加工作按视同缴费年限据实填，1998.6 后参保填 0。</span>';
+      } else {
+        eHint.innerHTML = '<b>参考值：</b>1998 年 6 月前已参保的才有，一般 <b>0–5 年</b>；<br>' +
+          '· 1993 年前参加工作：按视同缴费年限据实填；<br>' +
+          '· 1996 年前参加工作：通常 0–3 年；<br>' +
+          '· 1998 年 6 月后参保：填 <b>0</b>（无过渡性养老金）。';
+      }
+    }
+
+    // 已缴年限提示：显示由参加工作年月推算的月数
+    var pHint = $('rPaidHint');
+    if(pHint){
+      var wsYM = parseBirthYM($('rWorkYM') ? $('rWorkYM').value : '');
+      if(wsYM){
+        var nowD = new Date();
+        var months = (nowD.getFullYear()*12 + nowD.getMonth()) - (wsYM.year*12 + (wsYM.month-1));
+        if(months < 0) months = 0;
+        pHint.innerHTML = '自 <b>' + wsYM.year + ' 年 ' + wsYM.month + ' 月</b> 起，至今约 <b>' + months +
+          '</b> 个月 ≈ <b>' + (months/12).toFixed(1) + ' 年</b>';
+      } else {
+        pHint.innerHTML = '填写「参加工作时间（年月）」可自动带出';
+      }
+    }
+    // 退休年月提示：若用户手动改了退休年龄，同步刷新显示
+    var rymView = $('rRetireYMView');
+    if(rymView){
+      var bym2 = parseBirthYM($('rBirthYM') ? $('rBirthYM').value : '');
+      if(bym2){
+        var delayM = Math.round((r.retireAge - (RETIRE_PLAN[($('rPersonType')||{}).value||'male'].base)) * 12);
+        var totalM = Math.round(r.retireAge * 12);
+        var absIdx = (bym2.year * 12 + (bym2.month - 1)) + totalM;
+        var ry = Math.floor(absIdx/12), rm = (absIdx % 12) + 1;
+        rymView.value = ry + ' 年 ' + rm + ' 月';
+      }
+    }
+
+    // 平均缴费指数提示：显示当前指数相对社平的倍数
+    var iHint = $('rAvgIndexHint');
+    if(iHint){
+      var socAvg = toNum($('rSocAvg').value);
+      if(socAvg > 0){
+        iHint.innerHTML = '当前指数 <b>' + r.avgIndex.toFixed(2) + '</b> ≈ 社平的 <b>' + (r.avgIndex*100).toFixed(0) + '%</b>' +
+          '（' + fmtInt(r.avgIndex * socAvg) + ' 元 ÷ ' + fmtInt(socAvg) + '）';
+      } else {
+        iHint.innerHTML = '&nbsp;';
+      }
+    }
+
+    var acctLabel = r.acctMode === 'input'
+      ? '余额 ' + fmtInt(r.accountInput) + ' + 未来每月缴入 × ' + (r.acctRate*100).toFixed(1) + '% 按月逐期计息'
+      : '每月缴入 缴费工资×8%，按 ' + (r.acctRate*100).toFixed(1) + '% 按月逐期计息';
+
+    var rows = '';
+    rows += '<tr><td>① 基础养老金</td><td>(计发基数 ' + fmtInt(r.base) + ' × (1 + 指数 ' + r.avgIndex.toFixed(2) + ')) ÷ 2 × ' + r.totalYears.toFixed(1) + ' 年 × 1%</td><td>' + fmt(r.basic) + '</td></tr>';
+    rows += '<tr><td>② 个人账户养老金</td><td>' + acctLabel + ' → 储存额约 ' + fmtInt(r.account) + ' ÷ 计发月数 ' + r.payMonths.toFixed(1) + '</td><td>' + fmt(r.accountPension) + '</td></tr>';
+    if(r.transitional > 0){
+      rows += '<tr><td>③ 过渡性养老金</td><td>计发基数 ' + fmtInt(r.base) + ' × 早期指数 ' + r.earlyIndex.toFixed(2) + ' × ' + r.earlyYears.toFixed(1) + ' 年 × 1.2%</td><td>' + fmt(r.transitional) + '</td></tr>';
+    } else {
+      rows += '<tr><td>③ 缴费年限津贴</td><td>' + r.totalYears.toFixed(1) + ' 年 × 4 元/年</td><td>' + fmt(r.yearAllowance) + '</td></tr>';
+    }
+    rows += '<tr><td>④ 加发过渡性养老金</td><td>广东省统一标准 +100 元' + (r.transitional > 0 ? '<br><span style="color:var(--ink2)">（已享过渡性养老金，不再另发缴费年限津贴）</span>' : '') + '</td><td>' + fmt(r.extraTrans) + '</td></tr>';
+    if(r.identity === 'sz'){
+      rows += '<tr><td>⑤ 地方补助（深户）</td><td>' + r.totalYears.toFixed(1) + ' 年 × 指数 ' + r.avgIndex.toFixed(2) + ' × 18.5 + 20</td><td>' + fmt(r.localSubsidy) + '</td></tr>';
+    } else {
+      rows += '<tr><td>⑤ 地方补助</td><td>非深户无此项</td><td>0.00</td></tr>';
+    }
+    rows += '<tr class="total co"><td>合计</td><td>—</td><td>' + fmt(r.total) + '</td></tr>';
+    $('rBody').innerHTML = rows;
+
+    var warns = [];
+    if(r.totalYears <= 0){
+      warns.push('⚠ 缴费总年限为 0，无有效缴费记录，无法按月领取养老金。请填写"已缴费年限"或调整"当前年龄 / 预计退休年龄"。');
+    } else if(r.totalYears < 15){
+      warns.push('⚠ 缴费总年限不足 15 年，需继续缴费至满 15 年方可按月领取养老金。');
+    }
+    if(r.belowMin){
+      warns.push('⚠ 缴费工资低于深圳下限 ' + fmtInt(PENSION_MIN_BASE) + ' 元，已按下限计算。');
+    } else if(!r.salaryFilled){
+      warns.push('ℹ 未填「本人缴费工资」，个人账户养老金与替代率暂按深圳缴费下限 ' + fmtInt(PENSION_MIN_BASE) + ' 元估算，仅供速览；填写后更准确。');
+    }
+    // 已缴年限与「参加工作时间」矛盾时提示
+    var wsYMw = parseBirthYM($('rWorkYM') ? $('rWorkYM').value : '');
+    if(wsYMw){
+      var nowW = new Date();
+      var maxMonths = (nowW.getFullYear()*12 + nowW.getMonth()) - (wsYMw.year*12 + (wsYMw.month-1));
+      if(maxMonths >= 0 && r.paidYears > maxMonths/12 + 0.1){
+        warns.push('⚠ 「已缴费年限」' + r.paidYears.toFixed(1) + ' 年 超过自 ' + wsYMw.year + ' 年 ' + wsYMw.month +
+          ' 月参加工作以来的最长可能年限 ' + (maxMonths/12).toFixed(1) + ' 年，请核对。');
+      }
+    }
+    var warnHtml = warns.length ? '<br><b style="color:var(--warn)">' + warns.join('<br>') + '</b>' : '';
+
+    var acctNote = r.acctMode === 'input'
+      ? '个人账户以你填写的<b>当前余额 ' + fmtInt(r.accountInput) + ' 元</b>为起点，叠加未来每月缴入（缴费工资 × 8%），按记账利率 ' + (r.acctRate*100).toFixed(1) + '% <b>按月逐期计息</b>至退休，估算储存额约 <b>' + fmtInt(r.account) + ' 元</b>。'
+      : '你未填写账户余额，个人账户按<b>每月缴入 缴费工资 × 8%</b>、记账利率 ' + (r.acctRate*100).toFixed(1) + '% <b>按月逐期计息</b>估算（自参加工作起缴满全部年限），储存额约 <b>' + fmtInt(r.account) + ' 元</b>；建议填写实际余额以获更准确结果。';
+
+    // 无有效缴费年限：总额不具参考意义，明确提示
+    if(r.totalYears <= 0){
+      $('rBody').innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--ink3);padding:18px">尚无有效缴费年限，暂无法测算养老金。请填写「已缴费年限」或调整「当前年龄 / 预计退休年龄」。</td></tr>';
+      $('rNote').innerHTML = '<b style="color:var(--warn)">⚠ 缴费总年限为 0，无有效缴费记录，无法按月领取养老金。</b><br>' +
+        '<span style="color:var(--ink2);font-size:12.5px">养老金需累计缴费满 15 年方可按月领取。请填写"已缴费年限"或调整年龄参数后重新测算。依据深圳 2026 年口径：计发基数 11293 元/月，缴费基数下限 4775 元。</span>';
+      saveState();
+      return;
+    }
+
+    var idxWage = r.base * r.avgIndex;
+    var rymTxt = '';
+    var bymN = parseBirthYM($('rBirthYM') ? $('rBirthYM').value : '');
+    if(bymN){
+      var absIdxN = (bymN.year * 12 + (bymN.month - 1)) + Math.round(r.retireAge * 12);
+      rymTxt = '预计退休年月 <b>' + Math.floor(absIdxN/12) + ' 年 ' + ((absIdxN % 12) + 1) + ' 月</b>，';
+    }
+    $('rNote').innerHTML =
+      '<b>测算口径：</b>当前 ' + r.age + ' 岁，预计 ' + r.retireAge.toFixed(2) + ' 岁退休（' + rymTxt +
+      '缴费至退休约 ' + r.totalYears.toFixed(1) + ' 年，其中已缴 ' + r.paidYears.toFixed(1) +
+      ' 年、再缴 ' + r.remain.toFixed(1) + ' 年）。' +
+      '预计月养老金 <b>' + fmt(r.total) + ' 元</b>（' + (r.identity==='sz'?'深户':'非深户') + '），' +
+      '相对当前工资替代率约 <b>' + (r.ratio*100).toFixed(1) + '%</b>（相对指数化缴费工资 ' + fmtInt(idxWage) + ' 元约 ' + (r.total/idxWage*100).toFixed(1) + '%）。' + warnHtml + '<br>' +
+      '· ' + acctNote + '<br>' +
+      '<span style="color:var(--ink2);font-size:12.5px">依据深圳 2026 年口径：计发基数 11293 元/月（独立于社平工资），缴费基数下限 4775 元。基础养老金 = (计发基数×(1+平均缴费指数))÷2×缴费年限×1%；过渡性养老金 = 计发基数×1998.6前指数×早期年限×1.2%；地方补助仅深户享有（年限×指数×18.5+20）。替代率以当前工资为基准，未考虑工资增长与每年养老金调整；实际缴费年限、指数与账户余额以社保机构核定为准。</span>';
+
+    saveState();
+  }
+
+
+  function rowHtml(label, base, rate, co, me, note){
+    return '<tr><td>' + label + (note ? '<span class="tag co">'+note+'</span>' : '') +
+      '</td><td>' + fmtInt(base) + '</td><td>' + rate + '</td><td>' + fmt(co) +
+      '</td><td>' + fmt(me) + '</td><td>' + fmt(co+me) + '</td></tr>';
+  }
+
+  // ===== 本地存储 =====
+  var STORE_KEY = 'sz_si_calc_v1';        // 当前状态（实时自动保存）
+  var BACKUP_KEY = 'sz_si_calc_backup';   // 清空前的快照备份（供"恢复上次数据"用）
+
+  // 采集当前页面全部状态为一个可序列化对象
+  function collectState(){
+    var months = [];
+    for(var i=1;i<=12;i++){
+      var el = $('m'+i);
+      months.push(el ? toNum(el.value) : 0);
+    }
+    var ots = [];
+    for(var j=1;j<=12;j++){
+      var elOt = $('ot'+j);
+      ots.push(elOt ? toNum(elOt.value) : 0);
+    }
+    var bases = [];
+    for(var k=1;k<=12;k++){
+      var elB = $('b'+k);
+      bases.push(elB ? toNum(elB.value) : 0);
+    }
+    var hfbases = [];
+    for(var k2=1;k2<=12;k2++){
+      var elH = $('h'+k2);
+      hfbases.push(elH ? toNum(elH.value) : 0);
+    }
+    return {
+      ts: Date.now(),
+      ident: identMode, nsTier: nsTier,
+      base: baseEl.value, hfbase: hfbaseEl.value,
+      inj: injEl.value, hfco: hfcoEl.value, hfme: hfmeEl.value,
+      fillSalary: $('fillSalary').value,
+      bonus: $('bonus').value, bonusMonth: $('bonusMonth').value,
+      bonusTaxMode: $('bonusTaxMode') ? $('bonusTaxMode').value : 'combined',
+      overtime: $('overtime').value, overtimeMonth: $('overtimeMonth').value,
+      thirteenth: $('thirteenth').value,
+      deduManual: deduManualEl.value,
+      deduChecks: Array.prototype.map.call(document.querySelectorAll('#deductions input[type=checkbox]'), function(c){ return c.checked; }),
+      months: months, ots: ots, bases: bases, hfbases: hfbases,
+      // 第4版块：独立试算器
+      trial: (function(){
+        var ids=['cBase','cHfBase','cSalary','cOvertime','cHfCo','cHfMe','cMonth'];
+        var o={};
+        ids.forEach(function(id){ var e=$(id); if(e) o[id]=e.value; });
+        return o;
+      })(),
+      // 第5版块：公积金贷款
+      loan: (function(){
+        var ids=['lPrice','lType','lOrder','lDown','lDownAmt','lLimit','lYears','lAccount','lIncap','lPrepay','lUp','lAge','lRate','lBizRate','lRepay'];
+        var o={};
+        ids.forEach(function(id){ var e=$(id); if(e) o[id]=e.value; });
+        return o;
+      })(),
+      // 第6版块：退休金
+      pension: (function(){
+        var ids=['rPersonType','rWorkYM','rBirthYM','rAge','rRetireAge','rPaidYears','rSalary','rAvgIndex','rSocAvg','rBase','rAccount','rAcctRate','rIdentity','rEarly','rEarlyIndex'];
+        var o={};
+        ids.forEach(function(id){ var e=$(id); if(e) o[id]=e.value; });
+        return o;
+      })()
+    };
+  }
+
+  function saveState(){
+    try{
+      localStorage.setItem(STORE_KEY, JSON.stringify(collectState()));
+      updateDataHint();
+    }catch(e){}
+  }
+  // 把状态对象写回页面控件（返回逐月数据，供表格行生成后二次填入）
+  function applyState(st){
+    if(!st || typeof st !== 'object') return false;
+    try{
+      if(st.ident){ identMode = st.ident; }
+      if(st.nsTier){ nsTier = st.nsTier; }
+      if(st.base != null) baseEl.value = st.base;
+      if(st.hfbase != null) hfbaseEl.value = st.hfbase;
+      if(st.inj) injEl.value = st.inj;
+      if(st.hfco) hfcoEl.value = st.hfco;
+      if(st.hfme) hfmeEl.value = st.hfme;
+      if(st.fillSalary != null) $('fillSalary').value = st.fillSalary;
+      if(st.bonus != null) $('bonus').value = st.bonus;
+      if(st.bonusMonth) $('bonusMonth').value = st.bonusMonth;
+      if(st.bonusTaxMode && $('bonusTaxMode')) $('bonusTaxMode').value = st.bonusTaxMode;
+      if(st.overtime != null) $('overtime').value = st.overtime;
+      if(st.overtimeMonth) $('overtimeMonth').value = st.overtimeMonth;
+      if(st.thirteenth === true || st.thirteenth === 'yes') $('thirteenth').value = 'yes';
+      else if(st.thirteenth === false || st.thirteenth === 'no') $('thirteenth').value = 'no';
+      if(st.deduManual != null) deduManualEl.value = st.deduManual;
+      var cbs = document.querySelectorAll('#deductions input[type=checkbox]');
+      if(st.deduChecks && st.deduChecks.length === cbs.length){
+        cbs.forEach(function(c, i){ c.checked = !!st.deduChecks[i]; });
+      }
+      // 身份高亮
+      document.querySelectorAll('#ident .opt').forEach(function(o){
+        o.classList.toggle('on', o.dataset.i === identMode);
+      });
+      // 第4版块：独立试算器
+      if(st.trial){
+        Object.keys(st.trial).forEach(function(id){
+          var e=$(id); if(e && st.trial[id] != null) e.value = st.trial[id];
+        });
+      }
+      // 第5版块：公积金贷款
+      if(st.loan){
+        Object.keys(st.loan).forEach(function(id){
+          var e=$(id); if(e && st.loan[id] != null) e.value = st.loan[id];
+        });
+      }
+      // 第6版块：退休金
+      if(st.pension){
+        Object.keys(st.pension).forEach(function(id){
+          var e=$(id); if(e && st.pension[id] != null) e.value = st.pension[id];
+        });
+      }
+      return {months: st.months || null, ots: st.ots || null, bases: st.bases || null, hfbases: st.hfbases || null};
+    }catch(e){ return false; }
+  }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORE_KEY);
+      if(!raw) return false;
+      return applyState(JSON.parse(raw));
+    }catch(e){ return false; }
+  }
+
+  function render(){
+    var s = calcSelf();
+    var dedu = getDeduction();
+    var bonus = toNum($('bonus').value);
+    var bonusMonth = parseInt($('bonusMonth').value, 10) || 12;
+    var thirteenth = $('thirteenth').value === 'yes';
+    // 顶部「加班金额 + 发放月份」作为快捷填充器：填写后写入对应月份单元格（一次性）
+    var overtime = toNum($('overtime').value);
+    var overtimeMonth = parseInt($('overtimeMonth').value, 10) || 0;
+
+    // ===== 第4板块：独立试算器（输入金额 → 五险一金 + 到手）=====
+    renderTrial();
+    // ===== 第5板块：公积金贷款 =====
+    renderLoan();
+    // ===== 第6板块：退休金 =====
+    renderPension();
+
+    // ===== 年度收入记录表 =====
+    // 逐月基数：以版块1「社保基数」「公积金基数」作为默认值（首次创建时写入）
+    var defaultBase = toNum($('base').value);
+    var defaultHfBase = toNum($('hfbase').value);
+    // 首次创建 12 行输入框（之后只更新数值单元格，避免输入失焦）
+    if(!$('m1')){
+      var init = '';
+      for(var i0=1;i0<=12;i0++){
+        init += '<tr>' +
+          '<td id="mk' + i0 + '">' + i0 + '月</td>' +
+          '<td><input type="number" id="m' + i0 + '" value="0" min="0" step="100" inputmode="numeric"></td>' +
+          '<td><input type="number" id="b' + i0 + '" class="b-col" value="' + defaultBase + '" min="0" step="100" inputmode="numeric"></td>' +
+          '<td><input type="number" id="h' + i0 + '" class="b-col" value="' + defaultHfBase + '" min="0" step="100" inputmode="numeric"></td>' +
+          '<td><input type="number" id="ot' + i0 + '" class="ot-col" value="0" min="0" step="100" inputmode="numeric"></td>' +
+          '<td id="ins' + i0 + '">0.00</td>' +
+          '<td id="tax' + i0 + '">0.00</td>' +
+          '<td id="net' + i0 + '">0.00</td>' +
+          '<td id="chf' + i0 + '" class="hl-col">0.00</td>' +
+          '<td id="disp' + i0 + '">0.00</td>' +
+          '<td id="cd' + i0 + '">0.00</td>' +
+          '<td id="ci' + i0 + '">0.00</td>' +
+          '<td id="chft' + i0 + '" class="hl-col">0.00</td>' +
+        '</tr>';
+      }
+      $('yearBody').innerHTML = init;
+      for(var i1=1;i1<=12;i1++){
+        (function(idx){
+          var el = $('m'+idx);
+          if(el){
+            el.addEventListener('input', function(){ render(); });
+            el.addEventListener('change', function(){ render(); });
+          }
+          var elB = $('b'+idx);
+          if(elB){
+            elB.addEventListener('input', function(){
+              // 用户手动改过该月社保基数 → 打上「已自定义」标记，之后不再跟随版块1基数
+              elB.dataset.dirty = '1';
+              render();
+            });
+            elB.addEventListener('change', function(){ render(); });
+          }
+          var elH = $('h'+idx);
+          if(elH){
+            elH.addEventListener('input', function(){
+              // 用户手动改过该月公积金基数 → 不再跟随版块1公积金基数
+              elH.dataset.dirty = '1';
+              render();
+            });
+            elH.addEventListener('change', function(){ render(); });
+          }
+          var elOt = $('ot'+idx);
+          if(elOt){
+            elOt.addEventListener('input', function(){ render(); });
+            elOt.addEventListener('change', function(){ render(); });
+          }
+        })(i1);
+      }
+    }
+
+    // 逐月基数联动：未被用户手动修改过的月份，自动跟随版块1对应基数；
+    // 用户手动改过的月份（打有 dirty 标记）保持其自定义值不变。
+    for(var ib=1;ib<=12;ib++){
+      var beSync = $('b'+ib);
+      if(beSync && beSync.dataset.dirty !== '1') beSync.value = defaultBase;
+      var heSync = $('h'+ib);
+      if(heSync && heSync.dataset.dirty !== '1') heSync.value = defaultHfBase;
+    }
+
+    // 快捷填充由「填入」按钮/月份选择触发（见 applyOvertimeQuickFill），render 内不再自动写入
+
+    // 注意：五险一金按「每月各自的社保基数」计算（b1~b12），不再使用全站单一基数
+
+    var cumIncome = 0;    // 累计收入 = Σ(税前 + 奖金 + 加班)
+    var cumIns = 0;       // 累计五险一金个人
+    var cumTax = 0;       // 累计个税
+    var cumNet = 0;       // 累计到手
+    var cumDisp = 0;      // 累计可支配收入 = Σ(当月实际可支配)
+    var cumHf = 0;        // 累计公积金（个人+单位）
+    var cumOt = 0;        // 累计加班金额
+
+    // 个税累计预扣用的累计值
+    var tBaseInc = 0, tBaseIns = 0;
+    var cumWageTax = 0;   // 仅累计「工资薪金」已扣税额（单独计税奖金不并入，避免抵减后续月份工资税）
+
+    // 奖金计税方式：combined=并入综合所得 / separate=单独计税（全年一次性奖金优惠）
+    var bonusTaxMode = $('bonusTaxMode') ? $('bonusTaxMode').value : 'combined';
+    var bonusSeparateTax = 0;
+    if(bonusTaxMode === 'separate' && bonus > 0){
+      bonusSeparateTax = bonusTaxSeparate(bonus).tax;
+    }
+
+    for(var m=1;m<=12;m++){
+      var el = $('m'+m);
+      var baseInc = el ? toNum(el.value) : 0;   // 当期税前收入（不含加班）
+      // 13薪：12月额外加发一个月薪资（以12月填入的金额为基准）
+      if(m === 12 && thirteenth) baseInc += (el ? toNum(el.value) : 0);
+
+      // 加班金额：直接读取该月单元格（逐月可不同，支持多个月加班）
+      var otEl = $('ot'+m);
+      var ot = otEl ? toNum(otEl.value) : 0;
+
+      var inc = baseInc + ot;                    // 应税总收入 = 税前 + 加班
+      var isBonusMonth = (m === bonusMonth && bonus > 0);
+      // 并入综合所得：奖金计入所选月份的应税收入
+      if(isBonusMonth && bonusTaxMode === 'combined') inc += bonus;
+
+      // 当月社保基数 / 公积金基数：逐月可不同（如 7 月社平调整）；未填时退回版块1对应基数
+      var bEl = $('b'+m);
+      var monthBase = bEl ? toNum(bEl.value) : 0;
+      if(!(monthBase > 0)) monthBase = toNum($('base').value);
+      var hEl = $('h'+m);
+      var monthHfBase = hEl ? toNum(hEl.value) : 0;
+      if(!(monthHfBase > 0)) monthHfBase = toNum($('hfbase').value);
+      var insCalc = insForBase(monthBase, monthHfBase);
+
+      var ins = inc > 0 ? insCalc.me : 0;                    // 个人五险一金（含公积金个人）
+      var hfB = inc > 0 ? insCalc.hfBoth : 0;                // 公积金单位+个人
+
+      // 累计收入（税前 + 加班 + 奖金）——奖金始终计入收入口径
+      cumIncome += inc;
+      if(isBonusMonth && bonusTaxMode === 'separate') cumIncome += bonus;   // 单独计税的奖金仍计入收入
+      cumIns += ins;
+      cumHf += hfB;                                          // 累计公积金（个人+单位）
+      cumOt += ot;                                           // 累计加班金额
+
+      // 个税：按累计预扣（单独计税的奖金不进累计口径）
+      tBaseInc += inc;
+      tBaseIns += ins;
+      var cumTaxable = Math.max(0, tBaseInc - 5000*m - tBaseIns - dedu*m);
+      // 累计预扣口径里只累计「工资薪金」的已扣税额，单独计税的奖金税不参与累计，
+      // 否则会错误抵减后续月份的工资个税（导致奖金发放后几个月工资税变 0）
+      var monthWageTax = Math.max(0, taxOfMonth(cumTaxable).cum - cumWageTax);
+      cumWageTax += monthWageTax;
+
+      // 单独计税：奖金税额在发放月单独缴纳，且不并入累计预扣的已缴税额
+      var bonusTaxThisMonth = 0;
+      if(isBonusMonth && bonusTaxMode === 'separate'){
+        bonusTaxThisMonth = bonusSeparateTax;
+      }
+      var monthTax = monthWageTax + bonusTaxThisMonth;   // 当月实缴个税（工资税 + 奖金税）
+      cumTax += monthTax;
+
+      // 当月应发总额（含单独计税的奖金，用于到手计算）
+      var grossThisMonth = inc + ((isBonusMonth && bonusTaxMode === 'separate') ? bonus : 0);
+      var net = grossThisMonth - ins - monthTax;       // 当月到手（奖金税后到手）
+      var disp = net + hfB;                            // 当月实际可支配 = 到手 + 公积金(单位+个人)
+      cumNet += net;
+      cumDisp += disp;                      // 累计可支配收入
+
+      var mk = '';
+      if(m===12 && thirteenth) mk = ' <span class="mk">13薪</span>';
+      if(isBonusMonth) mk += ' <span class="mk">奖金' + (bonusTaxMode==='separate' ? '·单独计税' : '') + '</span>';
+      if(ot>0) mk += ' <span class="mk ot">加班</span>';
+      $('mk'+m).innerHTML = m + '月' + mk;
+      // ot 列现在是可编辑输入框，不再覆写其值（避免失焦），仅由用户或快捷填充写入
+      $('ins'+m).textContent = fmt(ins);
+      $('tax'+m).textContent = fmt(monthTax);
+      $('net'+m).textContent = fmt(net);
+      $('chf'+m).textContent = fmt(hfB);
+      $('disp'+m).textContent = fmt(disp);
+      $('cd'+m).textContent = fmt(cumDisp);
+      $('ci'+m).textContent = fmt(cumIncome);
+      $('chft'+m).textContent = fmt(cumHf);
+    }
+
+    $('yearFoot').innerHTML =
+      '<tr><td>全年合计</td><td>' + fmt(cumIncome) + '</td><td class="b-col">—</td><td class="b-col">—</td><td class="ot-col">' + fmt(cumOt) + '</td><td>' + fmt(cumIns) +
+      '</td><td>' + fmt(cumTax) + '</td><td>' + fmt(cumNet) + '</td><td class="hl-col">' + fmt(cumHf) + '</td><td>' + fmt(cumDisp) +
+      '</td><td>' + fmt(cumDisp) + '</td><td>' + fmt(cumIncome) + '</td><td class="hl-col">' + fmt(cumHf) + '</td></tr>';
+
+    // 奖金税额（用于汇总展示）
+    var bonusTaxDisplay = 0;
+    if(bonus > 0){
+      if(bonusTaxMode === 'separate') bonusTaxDisplay = bonusSeparateTax;
+      else { bonusTaxDisplay = null; }   // 并入时无法单独拆分，显示为"随工资计税"
+    }
+    var bonusCard = '';
+    if(bonus > 0){
+      bonusCard = '<div class="kv"><div class="k">奖金税额<br><small>' + (bonusTaxMode==='separate'?'单独计税':'并入综合所得') + '</small></div><div class="v" style="color:var(--warn)">' +
+        (bonusTaxDisplay === null ? '并入计税' : fmtInt(bonusTaxDisplay) + ' <small>元</small>') + '</div></div>';
+    }
+    $('yearSummary').innerHTML =
+      '<div class="kv"><div class="k">累计收入<br><small>税前+奖金+加班</small></div><div class="v" style="color:var(--ink)">' + fmtInt(cumIncome) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">累计实发到手</div><div class="v" style="color:var(--ok)">' + fmtInt(cumNet) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">累计公积金<br><small>个人+单位</small></div><div class="v" style="color:var(--brand)">' + fmtInt(cumHf) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">累计可支配收入<br><small>到手+公积金(单位+个人)</small></div><div class="v" style="color:var(--ok)">' + fmtInt(cumDisp) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">累计五险一金(个人)</div><div class="v" style="color:var(--ink3)">' + fmtInt(cumIns) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">月平均工资<br><small>年收入 ÷ 12</small></div><div class="v" style="color:var(--ink)">' + fmtInt(cumIncome/12) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">月平均可支配收入<br><small>累计可支配 ÷ 12</small></div><div class="v" style="color:var(--ok)">' + fmtInt(cumDisp/12) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">累计个税</div><div class="v" style="color:var(--warn)">' + fmtInt(cumTax) + ' <small>元</small></div></div>' +
+      '<div class="kv"><div class="k">全年实际税负</div><div class="v" style="color:var(--warn)">' + (cumIncome>0 ? (cumTax/cumIncome*100).toFixed(1) : '0.0') + '%</div></div>' +
+      bonusCard;
+
+    $('taxNote').innerHTML =
+      '<b>计算口径：</b><br>' +
+      '· <b>累计收入</b> = 税前收入 + 加班金额 + 奖金（按 12 个月累加）。<br>' +
+      '· <b>五险一金(个人)</b> 按实计算，含社保个人（养老8%+医疗+失业0.2%）与<b>公积金个人 ' + pct(s.hfMeRate) + '</b>。<br>' +
+      '· <b>当月到手</b> = 税前 − 五险一金(个人) − 个税。<b>当月公积金</b> = 当月公积金(个人+单位)。<b>当月实际可支配</b> = 当月到手 + 当月公积金(单位+个人)。<br>' +
+      '· <b>累计可支配收入</b> = 各月"当月实际可支配"的逐月累加。<b>月平均工资</b> = 累计收入 ÷ 12，<b>月平均可支配收入</b> = 累计可支配收入 ÷ 12。<br>' +
+      '· <b>个税（工资薪金）</b>按累计预扣法计算（累计应税收入 − 5000×月数 − 累计五险一金个人 − 累计专项附加扣除）× 税率 − 速算扣除数 − 已预缴。<br>' +
+      '· <b>奖金计税方式</b>：选「并入综合所得」时奖金并入发放月份按累计预扣计税；选「单独计税」时按<b>全年一次性奖金优惠</b>——奖金 ÷ 12 查月度税率表，<b>税额 = 奖金 × 税率 − 速算扣除数</b>，在发放月单独缴纳，<b>不并入平时工资、不影响其他月份工资个税</b>（一年限用一次）。<br>' +
+      '· <b>13薪</b>：选「是」则 12 月应税收入 = 该月税前收入 × 2（多发 1 个月）；<b>表格"税前收入"列仍显示你填写的 1 个月金额</b>，13 薪已计入"累计收入"与当月个税；选「否」按正常薪资计算。<b>加班金额逐月可填</b>（表格"加班金额"列直接编辑，一年中哪几个月有加班就填哪几个月）。<br>' +
+      '· <b>奖金对后续月份个税的影响</b>：选「并入综合所得」时，奖金抬高发放当月的<b>累计应纳税所得额</b>，可能跳入更高税率档，从而提高当月及<b>年内后续各月</b>的预扣个税（累计预扣法下"累计额越高、适用税率越高"）；到次年汇算清缴时会按全年实际收入多退少补。选「单独计税」则奖金税单独缴纳，<b>不影响发放月及后续月份的工资预扣个税</b>（示例：月薪 1 万、6 月发 3.6 万奖金，单独计税下仅 6 月税额增加 1080 元，7 月起恢复原水平）。<br>' +
+      '· 实际以单位申报与个税汇算为准。';
+
+    saveState();
+  }
+
+  // 交互：身份切换 → 档次选项收敛
+  function syncTierOptions(){
+    if(identMode === 's'){
+      tierEl.innerHTML = '<option value="1">一档（深户强制）</option>';
+      tierEl.disabled = true;
+      $('tierHint').innerHTML = '<b>深户政策强制参加医保一档</b>，单位 6% / 个人 2%，设有医保个人账户。';
+    } else {
+      tierEl.innerHTML =
+        '<option value="1">一档</option>' +
+        '<option value="2">二档</option>';
+      tierEl.disabled = false;
+      tierEl.value = String(nsTier);
+      $('tierHint').innerHTML = '<b>非深户可选一档或二档</b>（由单位申报决定）：一档单位 6% / 个人 2%；二档单位 1.5% / 个人 0.5%，二档无医保个人账户。';
+    }
+  }
+
+  document.querySelectorAll('#ident .opt').forEach(function(o){
+    o.addEventListener('click', function(){
+      document.querySelectorAll('#ident .opt').forEach(function(x){ x.classList.remove('on'); });
+      o.classList.add('on');
+      identMode = o.dataset.i;
+      syncTierOptions();
+      render();
+    });
+  });
+  tierEl.addEventListener('change', function(){
+    nsTier = parseInt(tierEl.value, 10) || 2;
+    render();
+  });
+  document.querySelectorAll('.chip[data-b]').forEach(function(c){
+    c.addEventListener('click', function(){ baseEl.value = c.dataset.b; render(); });
+  });
+  // 公积金基数「同社保基数」
+  var hfSameBtn = $('hfSame');
+  if(hfSameBtn){
+    hfSameBtn.addEventListener('click', function(){ hfbaseEl.value = baseEl.value; render(); });
+  }
+  [baseEl, injEl, hfbaseEl, hfcoEl, hfmeEl, deduManualEl,
+   fillSalaryEl, bonusEl, bonusMonthEl, bonusTaxModeEl].forEach(function(el){
+    if(!el) return;
+    el.addEventListener('input', render);
+    el.addEventListener('change', render);
+  });
+  if(thirteenthEl){ thirteenthEl.addEventListener('change', render); }
+  document.querySelectorAll('#deductions input[type=checkbox]').forEach(function(c){
+    c.addEventListener('change', function(){
+      deduManualEl.value = '';   // 勾选时清空手动值，改由自动累加
+      render();
+    });
+  });
+
+  // 「用月薪填充 12 个月」
+  $('fillBtn').addEventListener('click', function(){
+    var v = toNum(fillSalaryEl.value);
+    var b = toNum($('base').value);          // 同步把 12 个月社保基数重置为版块1基数
+    var h = toNum($('hfbase').value);        // 同步把 12 个月公积金基数重置为版块1基数
+    for(var i=1;i<=12;i++){
+      var el = $('m'+i);
+      if(el) el.value = v;
+      var be = $('b'+i);
+      if(be){ be.value = b; delete be.dataset.dirty; }   // 清除自定义标记 → 恢复跟随
+      var he = $('h'+i);
+      if(he){ he.value = h; delete he.dataset.dirty; }
+    }
+    render();
+  });
+
+  // ===== 第4板块：独立试算器 =====
+  ['cBase','cHfBase','cSalary','cOvertime','cHfCo','cHfMe','cMonth'].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.addEventListener('input', renderTrial);
+    el.addEventListener('change', renderTrial);
+  });
+
+  // ===== 第5板块：公积金贷款 =====
+  ['lPrice','lType','lOrder','lDownAmt','lLimit','lYears','lAccount','lIncap','lPrepay','lUp','lAge','lRate','lBizRate','lRepay'].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.addEventListener('input', renderLoan);
+    el.addEventListener('change', renderLoan);
+  });
+  // 房价变化时，按当前首付比例重算首付金额
+  var lPriceEl = $('lPrice');
+  if(lPriceEl){
+    lPriceEl.addEventListener('input', function(){
+      var price = toNum(lPriceEl.value);
+      // lastPrice 缺失时用当前价兜底，避免「比值失真」把首付金额算错
+      var lastPrice = toNum(lPriceEl.dataset.lastPrice);
+      if(!(lastPrice > 0)) lastPrice = price;
+      var curAmt = toNum($('lDownAmt').value);
+      // 用"改价前"的首付比例保持不变
+      var ratio = lastPrice > 0 ? curAmt / lastPrice : (toNum($('lDown').value) || 0.2);
+      if(!(ratio > 0)) ratio = 0.2;
+      if(price > 0) $('lDownAmt').value = Math.round(price * ratio);
+      lPriceEl.dataset.lastPrice = price;
+      renderLoan();
+    });
+    lPriceEl.dataset.lastPrice = toNum(lPriceEl.value);
+  }
+  // 按首套/二套自动填利率
+  function applyLoanRate(){
+    var order = $('lOrder').value;
+    var years = parseInt($('lYears').value, 10) || 30;
+    var rate = order === 'first'
+      ? (years <= 5 ? 2.1 : 2.6)
+      : (years <= 5 ? 2.525 : 3.075);
+    if($('lRate')) $('lRate').value = rate;
+  }
+  var lRateAutoBtn = $('lRateAuto');
+  if(lRateAutoBtn){
+    lRateAutoBtn.addEventListener('click', function(){
+      applyLoanRate();
+      renderLoan();
+    });
+  }
+  // 首套/二套、贷款年限变化 → 自动同步公积金利率（首套 2.6% / 二套 3.075%，5 年以下不同）
+  var lOrderEl = $('lOrder'), lYearsEl = $('lYears');
+  if(lOrderEl){
+    lOrderEl.addEventListener('change', function(){ applyLoanRate(); renderLoan(); });
+  }
+  if(lYearsEl){
+    lYearsEl.addEventListener('change', function(){ applyLoanRate(); renderLoan(); });
+  }
+  // 快捷填充加班：选择月份 或 金额失焦(change) 时写入表格对应月份，避免边输数字边写错月
+  function applyOvertimeQuickFill(){
+    var amt = toNum($('overtime').value);
+    var mo = parseInt($('overtimeMonth').value, 10) || 0;
+    if(mo >= 1 && mo <= 12 && amt > 0){
+      var target = $('ot'+mo);
+      if(target) target.value = amt;
+      $('overtime').value = '';   // 清空，避免重复
+      render();
+    }
+  }
+  var overtimeApplyBtn = $('overtimeApply');
+  if(overtimeApplyBtn){ overtimeApplyBtn.addEventListener('click', applyOvertimeQuickFill); }
+  if(overtimeMonthEl){ overtimeMonthEl.addEventListener('change', applyOvertimeQuickFill); }
+  if(overtimeEl){ overtimeEl.addEventListener('change', applyOvertimeQuickFill); }
+  var lDownSel = $('lDown');
+  if(lDownSel){
+    lDownSel.addEventListener('change', function(){
+      var r = parseFloat(lDownSel.value);
+      // 选具体档位 → 以比例为准，自动带出金额
+      if(!isNaN(r) && r > 0){
+        loanDownManualCustom = false;
+        $('lDownAmt').value = Math.round(toNum($('lPrice').value) * r);
+      } else {
+        // 选「自定义」→ 保留当前金额，由金额反算比例
+        loanDownManualCustom = true;
+      }
+      renderLoan();
+    });
+  }  // 首付金额输入 → 反算比例（输入过程不覆盖用户输入）
+  var lDownAmtEl = $('lDownAmt');
+  if(lDownAmtEl){
+    lDownAmtEl.addEventListener('input', function(){
+      // 手动改金额 → 先切到「自定义」让金额成为数据源，renderLoan 再按金额尝试回匹配档位
+      loanDownManualCustom = false;
+      var sel = $('lDown');
+      if(sel && sel.value !== 'custom') sel.value = 'custom';
+      renderLoan();   // renderLoan 内会同步下拉比例/提示，但不回写金额（输入框为焦点）
+    });
+    // 失焦：若低于最低比例，把金额规范到下限，保持输入框与实际口径一致
+    lDownAmtEl.addEventListener('blur', function(){
+      var price = toNum($('lPrice').value);
+      var type = $('lType').value;
+      var minDown = type === 'affordable' ? 0.15 : 0.20;
+      var amt = toNum(lDownAmtEl.value);
+      if(price > 0 && amt > 0 && amt / price < minDown - 1e-9){
+        lDownAmtEl.value = Math.round(price * minDown);
+      }
+      renderLoan();
+    });
+  }
+
+  // 房屋性质联动首付下限
+  var lTypeEl = $('lType'), lDownEl = $('lDown');
+  if(lTypeEl && lDownEl){
+    lTypeEl.addEventListener('change', function(){
+      if(lTypeEl.value === 'affordable' && toNum(lDownEl.value) < 0.15) lDownEl.value = '0.15';
+      if(lTypeEl.value === 'commercial' && toNum(lDownEl.value) < 0.20) lDownEl.value = '0.20';
+      // 若当前为具体档位 → 同步首付金额；自定义则保留金额
+      var r = parseFloat(lDownEl.value);
+      if(!isNaN(r) && r > 0){
+        $('lDownAmt').value = Math.round(toNum($('lPrice').value) * r);
+      }
+      renderLoan();
+    });
+  }
+
+  // ===== 第6板块：退休金 =====
+  ['rPersonType','rWorkYM','rBirthYM','rAge','rRetireAge','rPaidYears','rSalary','rAvgIndex','rSocAvg','rBase','rAccount','rAcctRate','rIdentity','rEarly','rEarlyIndex'].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.addEventListener('input', renderPension);
+    el.addEventListener('change', renderPension);
+  });
+
+  // 解析 年月 输入（type=month，值形如 1996-07）→ {year, month}
+  function parseBirthYM(v){
+    if(!v) return null;
+    var m = /^(\d{4})-(\d{1,2})/.exec(String(v).trim());
+    if(!m) return null;
+    var y = parseInt(m[1], 10), mo = parseInt(m[2], 10);
+    if(!(y > 0) || !(mo >= 1 && mo <= 12)) return null;
+    return { year: y, month: mo };
+  }
+  // 由出生年月推算今年年龄（周岁，按整年近似）
+  function ageFromBirthYM(bym, refDate){
+    if(!bym) return null;
+    var r = refDate || new Date();
+    var age = r.getFullYear() - bym.year;
+    if(r.getMonth() + 1 < bym.month) age -= 1;   // 今年生日未到
+    return age;
+  }
+  // 年月 → input[type=month] 值
+  function toMonthValue(bym){
+    if(!bym) return '';
+    return bym.year + '-' + (bym.month < 10 ? '0' + bym.month : bym.month);
+  }
+
+  // 「自动推算退休年龄与已缴年限」：人员类型 + 出生年月 + 参加工作年月 → 法定退休年龄、退休年月、已缴年限
+  function applyRetireAuto(silent){
+    var type = $('rPersonType') ? $('rPersonType').value : 'male';
+    var wsYM = parseBirthYM($('rWorkYM') ? $('rWorkYM').value : '');
+    var bym = parseBirthYM($('rBirthYM') ? $('rBirthYM').value : '');
+    var hintEl = $('rAutoHint');
+    if(!bym){
+      // 出生年月为空：在「今年年龄」有效时按年龄兜底反推，否则提示填写
+      if(toNum($('rAge').value) > 0){
+        var a0 = toNum($('rAge').value);
+        bym = { year: Math.round(new Date().getFullYear() - a0), month: 7 };
+      } else {
+        if(hintEl) hintEl.innerHTML = '<b style="color:var(--warn)">请先填写「出生年月」。</b>';
+        return null;
+      }
+    }
+    if(!wsYM){
+      if(hintEl) hintEl.innerHTML = '<b style="color:var(--warn)">请先填写「参加工作时间（年月）」。</b>';
+      return null;
+    }
+    // 以出生年月为准计算年龄
+    var curAge;
+    if(toNum($('rAge').value) > 0 && !/^\d{4}-\d{1,2}$/.test(($('rBirthYM')||{}).value || '')){
+      curAge = toNum($('rAge').value);   // 出生年月为空、按年龄兜底
+    } else {
+      curAge = ageFromBirthYM(bym);
+      if($('rAge') && curAge != null && document.activeElement !== $('rAge')) $('rAge').value = curAge;
+    }
+    if(!(curAge > 0)) return null;
+
+    var est = estimateRetireAge(wsYM, curAge, type, null, bym.month, bym.year);
+    if(!est) return null;
+    est.birthYear = bym.year; est.birthMonth = bym.month;
+    var paid = estimatePaidYears(wsYM);
+    // 写入退休年龄（下拉匹配最接近档位，或动态追加）
+    var sel = $('rRetireAge');
+    var ageVal = est.retireAge;
+    var matched = false;
+    if(sel){
+      for(var i=0;i<sel.options.length;i++){
+        if(Math.abs(parseFloat(sel.options[i].value) - ageVal) < 1e-9){ sel.selectedIndex = i; matched = true; break; }
+      }
+      if(!matched){
+        var opt = document.createElement('option');
+        var mm = est.delayMonths % 12;
+        opt.value = String(ageVal);
+        opt.textContent = (est.plan.base + Math.floor(est.delayMonths/12)) + ' 岁' + (mm ? ' ' + mm + ' 个月' : '');
+        sel.appendChild(opt);
+        sel.value = String(ageVal);
+      }
+    }
+    if($('rPaidYears') && paid != null) $('rPaidYears').value = paid;
+    // 写入退休年月显示
+    if($('rRetireYMView')) $('rRetireYMView').value = est.retireYear + ' 年 ' + est.retireMonth + ' 月';
+
+    renderPension();
+
+    if(hintEl){
+      var mm2 = est.delayMonths % 12;
+      var ageText = est.plan.base + ' 岁' + (est.delayMonths ? ' + 延迟 ' + est.delayMonths + ' 个月' : '') +
+        (est.delayMonths ? '（约 ' + (est.plan.base + Math.floor(est.delayMonths/12)) + ' 岁' + (mm2 ? ' ' + mm2 + ' 个月' : '') + '）' : '');
+      hintEl.innerHTML =
+        '<b style="color:var(--ok)">✓ 已推算</b>　' + est.plan.name + '：出生 <b>' + est.birthYear + ' 年 ' + est.birthMonth + ' 月</b>' +
+        '（今年约 <b>' + curAge + ' 岁</b>） → 原法定退休 <b>' + est.plan.base + ' 岁</b>，延迟 <b>' + est.delayMonths + ' 个月</b>（' + ageText + '）' +
+        '，即 <b>' + est.retireAge.toFixed(2) + ' 岁</b>退休，预计退休年月 <b>' + est.retireYear + ' 年 ' + est.retireMonth + ' 月</b>' +
+        (paid != null ? '；参加工作在 <b>' + wsYM.year + ' 年 ' + wsYM.month + ' 月</b>，已缴约 <b>' + paid.toFixed(1) + ' 年</b>' : '') + '。' +
+        '<br><span style="color:var(--ink2)">依据《国务院关于渐进式延迟法定退休年龄的办法》（2025.1.1 起）：男职工与原 55 岁女职工每 4 个月延 1 个月，原 50 岁女职工每 2 个月延 1 个月。</span>';
+    }
+    if(!silent){
+      var mm3 = est.delayMonths % 12;
+      alert('已按人员类型推算\n\n' + est.plan.name +
+        '\n出生年月：' + est.birthYear + ' 年 ' + est.birthMonth + ' 月（今年约 ' + curAge + ' 岁）' +
+        '\n延迟月数：' + est.delayMonths + ' 个月' +
+        '\n法定退休年龄：' + est.plan.base + ' 岁' + (est.delayMonths ? ' + ' + mm3 + ' 个月（共 ' + est.delayMonths + ' 个月）= ' + est.retireAge.toFixed(2) + ' 岁' : '') +
+        '\n预计退休年月：' + est.retireYear + ' 年 ' + est.retireMonth + ' 月' +
+        (paid != null ? '\n已缴费年限：约 ' + paid.toFixed(1) + ' 年' : ''));
+    }
+    return est;
+  }
+  var rAutoBtn = $('rAutoBtn');
+  if(rAutoBtn){ rAutoBtn.addEventListener('click', function(){ applyRetireAuto(false); }); }
+
+  // 出生年月变化 → 自动带出今年年龄（并静默刷新提示）
+  var rBirthYMEl = $('rBirthYM');
+  if(rBirthYMEl){
+    rBirthYMEl.addEventListener('change', function(){
+      var bym = parseBirthYM(rBirthYMEl.value);
+      if(bym){
+        var a = ageFromBirthYM(bym);
+        if($('rAge') && a != null) $('rAge').value = a;
+      }
+      renderPension();
+      applyRetireAuto(true);
+    });
+  }
+  // 参加工作年月变化 → 自动带出已缴年限（并静默刷新提示）
+  var rWorkYMEl = $('rWorkYM');
+  if(rWorkYMEl){
+    rWorkYMEl.addEventListener('change', function(){
+      var ws = parseBirthYM(rWorkYMEl.value);
+      if(ws){
+        var paid = estimatePaidYears(ws);
+        if($('rPaidYears') && paid != null && document.activeElement !== $('rPaidYears')) $('rPaidYears').value = paid;
+      }
+      renderPension();
+      applyRetireAuto(true);
+    });
+  }
+  // 今年年龄变化 → 反推出生年月（年份变，月份保留）
+  var rAgeEl = $('rAge');
+  if(rAgeEl){
+    rAgeEl.addEventListener('change', function(){
+      var a = toNum(rAgeEl.value);
+      if(a > 0 && $('rBirthYM')){
+        var cur = parseBirthYM($('rBirthYM').value);
+        var mo = cur ? cur.month : 7;
+        $('rBirthYM').value = toMonthValue({ year: Math.round(new Date().getFullYear() - a), month: mo });
+      }
+      applyRetireAuto(true);
+    });
+  }
+  // 人员类型 / 参加工作年 变化时自动刷新提示（静默）
+  ['rPersonType','rWorkYM'].forEach(function(id){
+    var el = $(id);
+    if(!el) return;
+    el.addEventListener('change', function(){ applyRetireAuto(true); });
+  });
+
+  // 「按当前工资自动预估」平均缴费指数
+  var rAvgIndexAutoBtn = $('rAvgIndexAuto');
+  if(rAvgIndexAutoBtn){
+    rAvgIndexAutoBtn.addEventListener('click', function(){
+      var salary = toNum($('rSalary').value);
+      var socAvg = toNum($('rSocAvg').value);
+      var est = estimateIndex(salary, socAvg);
+      if(!est){
+        alert('请先填写「当前月缴费工资」和「退休时社平工资」。');
+        return;
+      }
+      $('rAvgIndex').value = est.value;
+      renderPension();
+      var msg = '已按 缴费工资 ' + fmtInt(salary) + ' 元 ÷ 社平 ' + fmtInt(socAvg) +
+        ' 元 预估指数为 ' + est.value.toFixed(2);
+      if(est.hitMin) msg += '（原始比值 ' + est.raw.toFixed(2) + ' 低于下限 0.6，已按下限取值）';
+      else if(est.hitMax) msg += '（原始比值 ' + est.raw.toFixed(2) + ' 高于上限 3.0，已按上限取值）';
+      else msg += '。';
+      alert(msg);
+    });
+  }
+
+  // ===== 数据状态提示（显示是否有可恢复备份）=====
+  function updateDataHint(customMsg){
+    var el = $('dataHint');
+    if(!el) return;
+    if(customMsg){
+      el.innerHTML = '<b style="color:var(--ok)">' + customMsg + '</b>';
+      setTimeout(function(){ updateDataHint(); }, 3200);
+      return;
+    }
+    var text = '数据已自动保存在本机浏览器，关闭后重开仍在';
+    try{
+      var raw = localStorage.getItem(BACKUP_KEY);
+      if(raw){
+        var st = JSON.parse(raw);
+        var when = st.ts ? new Date(st.ts).toLocaleString('zh-CN', {hour12:false}) : '';
+        text += '；有备份' + (when ? '（' + when + '）' : '') + '可恢复';
+      }
+    }catch(e){}
+    el.innerHTML = '💾 ' + text;
+  }
+
+  // ===== 一键清空全部数据（清空前先自动备份，可一键恢复）=====
+  // 把所有版块的「金额」输入框统一归 0；下拉选项与利率/年龄等参数保留默认
+  // 归零清单：①社保基数/公积金基数 ②专项附加扣除手动值 ③逐月税前+加班+月薪填充+奖金
+  //          ④试算器基数/公积金基数/税前/加班 ⑤房价/首付金额/账户余额/缴存基数/提前还款
+  //          ⑥月缴费工资/个人账户余额/已缴年限/早期年限
+  // 注意：⑥的「退休时计发基数」(rBase) 与「退休时社平工资」(rSocAvg) 属政策参考参数，清空时保留
+  var AMOUNT_IDS = [
+    'base','hfbase',                                          // ①
+    'deduManual',                                             // ②
+    'fillSalary','bonus','overtime',                          // ③ 顶部金额
+    'cBase','cHfBase','cSalary','cOvertime',                  // ④
+    'lPrice','lDownAmt','lAccount','lIncap','lPrepay',        // ⑤
+    'rPaidYears','rSalary','rAccount','rEarly'                // ⑥（rBase / rSocAvg 不清空）
+  ];
+
+  function applyAllDefaults(){
+    // 逐月税前收入 / 加班金额 归零（表格由 render 生成，故在此直接置 0）
+    for(var i=1;i<=12;i++){
+      var el = $('m'+i);
+      if(el) el.value = 0;
+      var elOt = $('ot'+i);
+      if(elOt) elOt.value = 0;
+    }
+    // 其余所有金额输入框归零
+    AMOUNT_IDS.forEach(function(id){
+      var e = $(id);
+      if(e) e.value = 0;
+    });
+    // 专项附加扣除勾选全部取消（扣除额归 0）
+    document.querySelectorAll('#deductions input[type=checkbox]').forEach(function(c){ c.checked = false; });
+  }
+
+  // 从备份恢复到一个状态对象（供全局恢复复用）
+  function restoreFromBackup(){
+    var raw = null;
+    try{ raw = localStorage.getItem(BACKUP_KEY); }catch(e){}
+    if(!raw) return { ok:false, reason:'empty' };
+    var st = null;
+    try{ st = JSON.parse(raw); }catch(e){}
+    if(!st) return { ok:false, reason:'broken' };
+    var monthly = applyState(st);
+    render();   // 先确保表格行存在
+    if(monthly){
+      if(monthly.months){
+        for(var i=1;i<=12;i++){
+          var e1 = $('m'+i); if(e1) e1.value = monthly.months[i-1] || 0;
+        }
+      }
+      if(monthly.ots){
+        for(var j=1;j<=12;j++){
+          var e2 = $('ot'+j); if(e2) e2.value = monthly.ots[j-1] || 0;
+        }
+      }
+    }
+    render();   // 恢复后重算并保存
+    return { ok:true, ts: st.ts };
+  }
+
+  // ── 全局「一键清空所有金额」（全部 6 个版块）──
+  $('clearAllBtn').addEventListener('click', function(){
+    if(!confirm('确定一键清空【全部版块】的所有金额吗？\n\n所有金额将归 0（下拉选项、利率、年龄等参数保留）；退休板块的「退休时计发基数」与「退休时社平工资」属政策参考参数，会保留不清空。\n清空前会自动备份一份，误触可立即点「一键恢复」找回。')) return;
+    try{ localStorage.setItem(BACKUP_KEY, JSON.stringify(collectState())); }catch(e){}
+    applyAllDefaults();
+    render();          // 渲染会触发 saveState()，写入"归零状态"
+    updateDataHint('已清空全部金额（均归 0），可点「一键恢复」找回 ✓');
+  });
+
+  // ── 全局「一键恢复」（撤销清空）──
+  $('restoreAllBtn').addEventListener('click', function(){
+    var raw = null;
+    try{ raw = localStorage.getItem(BACKUP_KEY); }catch(e){}
+    if(!raw){
+      alert('暂无可恢复的数据。\n（只有执行过一次「一键清空所有金额」之后，才会有备份可供恢复）');
+      return;
+    }
+    var st = null;
+    try{ st = JSON.parse(raw); }catch(e){}
+    if(!st){ alert('备份数据已损坏，无法恢复。'); return; }
+
+    var when = st.ts ? new Date(st.ts).toLocaleString('zh-CN', {hour12:false}) : '未知时间';
+    if(!confirm('确定恢复清空前的全部数据吗？\n\n备份时间：' + when + '\n（当前页面上的填写内容将被覆盖）')) return;
+
+    var res = restoreFromBackup();
+    if(res.ok){
+      updateDataHint('已恢复 ' + when + ' 的数据 ✓');
+    } else {
+      alert('恢复失败，请重试。');
+    }
+  });
+
+  // ── 第3版块「清空本版块数据」：只清逐月收入与加班，不影响其他版块 ──
+  $('clearBtn').addEventListener('click', function(){
+    if(!confirm('确定清空本版块（一年累计收入记录）的逐月数据吗？\n\n仅清空本版块的 12 个月税前收入与加班金额，社保基数重置为版块1基数，不影响其他版块。')) return;
+    var b = toNum($('base').value);
+    var h = toNum($('hfbase').value);
+    for(var i=1;i<=12;i++){
+      var el = $('m'+i);
+      if(el) el.value = 0;
+      var elOt = $('ot'+i);
+      if(elOt) elOt.value = 0;
+      var elB = $('b'+i);
+      if(elB){ elB.value = b; delete elB.dataset.dirty; }   // 重置为版块1基数并恢复跟随
+      var elH = $('h'+i);
+      if(elH){ elH.value = h; delete elH.dataset.dirty; }
+    }
+    render();
+  });
+
+  // ===== 初始化：恢复本地数据 =====
+  var savedData = loadState();
+  syncTierOptions();
+  render();   // 先渲染生成表格行（含 m* / b* / ot* 输入框）
+  if(savedData && $('m1')){
+    var savedMonths = savedData.months;
+    var savedOts = savedData.ots;
+    var savedBases = savedData.bases;
+    if(savedMonths){
+      for(var i2=1;i2<=12;i2++){
+        var el2 = $('m'+i2);
+        if(el2) el2.value = savedMonths[i2-1] || 0;
+      }
+    }
+    if(savedOts){
+      for(var i3=1;i3<=12;i3++){
+        var elOt2 = $('ot'+i3);
+        if(elOt2) elOt2.value = savedOts[i3-1] || 0;
+      }
+    }
+    if(savedBases){
+      for(var i4=1;i4<=12;i4++){
+        var elB2 = $('b'+i4);
+        if(elB2 && savedBases[i4-1] != null){
+          elB2.value = savedBases[i4-1];
+          // 标记为自定义，避免下次 render 被版块1基数覆盖
+          if(toNum(savedBases[i4-1]) !== toNum($('base').value)) elB2.dataset.dirty = '1';
+        }
+      }
+    }
+    if(savedData.hfbases){
+      for(var i5=1;i5<=12;i5++){
+        var elH2 = $('h'+i5);
+        if(elH2 && savedData.hfbases[i5-1] != null){
+          elH2.value = savedData.hfbases[i5-1];
+          if(toNum(savedData.hfbases[i5-1]) !== toNum($('hfbase').value)) elH2.dataset.dirty = '1';
+        }
+      }
+    }
+    render();   // 恢复后重算
+  }
+  updateDataHint();
+
+  // ===== 输入健壮性：失焦时把负数/超范围值规范到合法区间 =====
+  document.querySelectorAll('input[type=number]').forEach(function(inp){
+    inp.addEventListener('blur', function(){
+      var raw = inp.value.trim();
+      if(raw === '') return;
+      var n = parseFloat(raw);
+      if(isNaN(n)){ inp.value = ''; render(); renderLoan(); renderPension(); return; }
+      var min = inp.min !== '' ? parseFloat(inp.min) : -Infinity;
+      var max = inp.max !== '' ? parseFloat(inp.max) : Infinity;
+      var clamped = Math.min(Math.max(n, min), max);
+      if(clamped !== n){ inp.value = clamped; }
+      // 统一触发一次重算
+      render(); renderLoan(); renderPension();
+    });
+  });
+
+  // ===== 分享：复制测算结果 =====
+  var shareBtn = $('shareBtn');
+  if(shareBtn){
+    shareBtn.addEventListener('click', function(){
+      var s = calcSelf();
+      var base = toNum(baseEl.value);
+      var dedu = getDeduction();
+      var bonus = toNum(bonusEl.value);
+      var bonusMonth = parseInt(bonusMonthEl.value, 10) || 12;
+      var thirteenth = thirteenthEl.value === 'yes';
+      // 加班金额逐月从表格读取
+      var overtime = toNum(overtimeEl.value);
+      var overtimeMonth = parseInt(overtimeMonthEl.value, 10) || 0;
+
+      // 重算年度（口径与页面一致：累计收入 = 税前 + 加班 + 奖金）
+      var cumIncome = 0, cumIns = 0, cumTax = 0, cumNet = 0, cumDisp = 0, cumHf = 0, cumOt = 0;
+      var cumTaxBaseIncome = 0, cumTaxBaseIns = 0;
+      var cumWageTaxS = 0;   // 仅累计工资薪金已扣税额（单独计税奖金不并入）
+      var bonusTaxModeS = bonusTaxModeEl ? bonusTaxModeEl.value : 'combined';
+      var bonusSepTax = (bonusTaxModeS === 'separate' && bonus > 0) ? bonusTaxSeparate(bonus).tax : 0;
+      for(var m=1;m<=12;m++){
+        var el = $('m'+m);
+        var baseInc = el ? toNum(el.value) : 0;
+        if(m === 12 && thirteenth) baseInc += (el ? toNum(el.value) : 0);
+        var otEl2 = $('ot'+m);
+        var ot = otEl2 ? toNum(otEl2.value) : 0;
+        var inc = baseInc + ot;
+        var isBm = (m === bonusMonth && bonus > 0);
+        if(isBm && bonusTaxModeS === 'combined') inc += bonus;
+        // 逐月社保/公积金基数（与页面一致）
+        var bEl2 = $('b'+m);
+        var monthBaseS = bEl2 ? toNum(bEl2.value) : 0;
+        if(!(monthBaseS > 0)) monthBaseS = base;
+        var hEl2 = $('h'+m);
+        var monthHfBaseS = hEl2 ? toNum(hEl2.value) : 0;
+        if(!(monthHfBaseS > 0)) monthHfBaseS = toNum(hfbaseEl.value);
+        var insCalcS = insForBase(monthBaseS, monthHfBaseS);
+        var ins = inc > 0 ? insCalcS.me : 0;
+        var hfB = inc > 0 ? insCalcS.hfBoth : 0;
+        cumIncome += inc + ((isBm && bonusTaxModeS === 'separate') ? bonus : 0);
+        cumIns += ins;
+        cumHf += hfB;
+        cumOt += ot;
+        cumTaxBaseIncome += inc; cumTaxBaseIns += ins;
+        var cumTaxable = Math.max(0, cumTaxBaseIncome - 5000*m - cumTaxBaseIns - dedu*m);
+        var monthWageTax = Math.max(0, taxOfMonth(cumTaxable).cum - cumWageTaxS);
+        cumWageTaxS += monthWageTax;
+        var monthTax = monthWageTax;
+        if(isBm && bonusTaxModeS === 'separate') monthTax += bonusSepTax;
+        cumTax += monthTax;
+        var gross = inc + ((isBm && bonusTaxModeS === 'separate') ? bonus : 0);
+        cumNet += gross - ins - monthTax;
+        cumDisp += (gross - ins - monthTax) + hfB;
+      }
+
+      var lines = [
+        '【深圳五险一金与个税测算 · 2026年】',
+        '身份：' + (identMode==='s' ? '深户（医保一档）' : '非深户（医保' + (s.tier===1?'一档':'二档') + '）'),
+        '缴费基数：' + fmtInt(base) + ' 元/月；公积金基数 ' + fmtInt(s.hfbase) + ' 元（单位' + pct(s.hfCoRate) + ' / 个人' + pct(s.hfMeRate) + '）',
+        '',
+        '■ 每月缴费',
+        '　单位 ' + fmtInt(s.coTotal) + ' 元 + 个人 ' + fmtInt(s.meTotal) + ' 元 = ' + fmtInt(s.total) + ' 元/月',
+        '',
+        '■ 一年累计记录' + (thirteenth ? '（含13薪，12月发放）' : ''),
+        (bonus > 0 ? '　奖金：' + fmtInt(bonus) + ' 元（' + bonusMonth + '月发放，' + (bonusTaxModeS==='separate' ? '单独计税，税额约 ' + fmtInt(bonusSepTax) + ' 元' : '并入综合所得') + '）' : ''),
+        '　累计收入（税前+加班+奖金）：' + fmtInt(cumIncome) + ' 元',
+        '　累计加班金额：' + fmtInt(cumOt) + ' 元',
+        '　月平均工资（年收÷12）：' + fmtInt(cumIncome/12) + ' 元',
+        '　累计实发到手：' + fmtInt(cumNet) + ' 元',
+        '　累计公积金（个人+单位）：' + fmtInt(cumHf) + ' 元',
+        '　累计可支配收入（到手+公积金单位个人）：' + fmtInt(cumDisp) + ' 元',
+        '　累计五险一金(个人)：' + fmtInt(cumIns) + ' 元',
+        '　累计个税：' + fmtInt(cumTax) + ' 元',
+        '　全年实际税负：' + (cumIncome>0 ? (cumTax/cumIncome*100).toFixed(1) : '0.0') + '%'
+      ];
+
+      // 追加退休金测算（若已填写且年限有效）
+      var rp = calcPension();
+      if(rp.totalYears > 0){
+        lines.push('');
+        lines.push('■ 退休金测算（' + (rp.identity==='sz'?'深户':'非深户') + '）');
+        lines.push('　缴费总年限：' + rp.totalYears.toFixed(1) + ' 年（已缴 ' + rp.paidYears + ' + 预计再缴 ' + rp.remain + '）');
+        lines.push('　预计月养老金：' + fmtInt(rp.total) + ' 元（替代率约 ' + (rp.ratio*100).toFixed(1) + '%）');
+      }
+      // 追加公积金贷款测算（若已填写房价）
+      var lv = calcLoan();
+      if(toNum($('lPrice').value) > 0){
+        lines.push('');
+        lines.push('■ 公积金贷款测算');
+        lines.push('　房屋总价 ' + fmtInt(toNum($('lPrice').value)) + ' 元，首付 ' + fmtInt(lv.downAmt) + ' 元（' + pct(lv.down) + '），贷款本金 ' + fmtInt(lv.hfPrincipal + lv.bizPrincipal) + ' 元');
+        lines.push('　期限 ' + lv.years + ' 年，首月月供 ' + fmtInt(lv.firstPay) + ' 元，支付总利息 ' + fmtInt(lv.totalInterest) + ' 元');
+      }
+      lines.push('');
+      lines.push('（按公开费率口径估算，实际以社保/税务核定为准）');
+      var text = lines.join('\n');
+      var hint = $('shareHint');
+      function done(ok){
+        hint.style.color = ok ? 'var(--ok)' : 'var(--warn)';
+        hint.textContent = ok ? '已复制！去微信粘贴即可 ✓' : '复制失败，请长按页面手动选择文字';
+        setTimeout(function(){ hint.style.color = ''; hint.textContent = '点击后复制为文字，可直接粘贴到微信聊天。'; }, 2600);
+      }
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).then(function(){ done(true); }, function(){ fallback(text, done); });
+      } else { fallback(text, done); }
+    });
+  }
+  function fallback(text, cb){
+    try{
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.style.position='fixed'; ta.style.opacity='0';
+      document.body.appendChild(ta); ta.select();
+      var ok = document.execCommand('copy');
+      document.body.removeChild(ta); cb(ok);
+    }catch(e){ cb(false); }
+  }
+})();
+</script>
+</body>
+</html>
